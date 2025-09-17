@@ -1,42 +1,82 @@
 ﻿@model Aplicacion_pedidos.Models.UserModel
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalles de Usuario";
 }
 
-<h1>Details</h1>
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="mb-0"><i class="bi bi-info-circle me-2"></i>Detalles de Usuario</h2>
+        <p class="text-muted">Información completa del usuario</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <div class="avatar-circle-lg me-2 bg-light">
+            <span>@Model.Nombre.Substring(0, 1).ToUpper()</span>
+        </div>
+    </div>
+</div>
 
-<div>
-    <h4>UserModel</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Nombre)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Nombre)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Password)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Password)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Rol)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Rol)
-        </dd>
-    </dl>
+<div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+        <h5 class="mb-0">Información Personal</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="detail-item">
+                    <div class="detail-label">
+                        <i class="bi bi-person me-2 text-primary"></i>
+                        @Html.DisplayNameFor(model => model.Nombre)
+                    </div>
+                    <div class="detail-value">@Html.DisplayFor(model => model.Nombre)</div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="detail-item">
+                    <div class="detail-label">
+                        <i class="bi bi-envelope me-2 text-primary"></i>
+                        @Html.DisplayNameFor(model => model.Email)
+                    </div>
+                    <div class="detail-value">@Html.DisplayFor(model => model.Email)</div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="detail-item">
+                    <div class="detail-label">
+                        <i class="bi bi-person-badge me-2 text-primary"></i>
+                        @Html.DisplayNameFor(model => model.Rol)
+                    </div>
+                    <div class="detail-value">
+                        <span class="badge rounded-pill @(Model.Rol == "Admin" ? "bg-danger" : "bg-primary")">
+                            @Html.DisplayFor(model => model.Rol)
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer bg-white py-3">
+        <div class="d-flex">
+            <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-warning me-2">
+                <i class="bi bi-pencil-square me-1"></i> Editar
+            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Volver al Listado
+            </a>
+        </div>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Add subtle animation when hovering over details
+            $(".detail-item").hover(
+                function() { $(this).addClass("detail-hover"); },
+                function() { $(this).removeClass("detail-hover"); }
+            );
+        });
+    </script>
+}
