@@ -15,6 +15,8 @@ namespace Aplicacion_pedidos.Controllers
 
         public IActionResult Index()
         {
+            ViewBag.WelcomeMessage = "Bienvenido a la Aplicación de Pedidos";
+            ViewBag.CurrentDate = DateTime.Now;
             return View();
         }
 
