@@ -34,10 +34,7 @@ namespace Aplicacion_pedidos.Data
                 entity.HasIndex(e => e.Email).IsUnique();
             });
             
-            // Seed data if needed
-            // modelBuilder.Entity<UserModel>().HasData(
-            //     new UserModel { Id = 1, Nombre = "Admin", Email = "admin@example.com", Password = "admin123", Rol = "Admin" }
-            // );
+            
         }
     }
 }
