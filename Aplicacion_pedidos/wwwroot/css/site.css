@@ -85,6 +85,27 @@ body {
   margin-left: 0.3em;
 }
 
+/* User Dropdown */
+.user-dropdown {
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  border: none;
+  color: #6d6875;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.user-dropdown:hover, .user-dropdown:focus {
+  color: #d87093;
+  background-color: rgba(255, 239, 213, 0.5);
+  box-shadow: none;
+}
+
+.dropdown-item-text {
+  padding: 0.5rem 1rem;
+}
+
 /* Content Container */
 .content-container {
   background-color: #fff9f9;
@@ -184,6 +205,18 @@ h1, h2, h3, h4, h5, h6 {
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(109, 104, 117, 0.3);
+}
+
+/* Login Form Styling */
+.login-card {
+  max-width: 450px;
+  margin: 0 auto;
+}
+
+.alert-danger {
+  background-color: rgba(239, 83, 80, 0.1);
+  border-color: rgba(239, 83, 80, 0.2);
+  color: #ef5350;
 }
 
 /* Users Table Styles */
@@ -363,6 +396,11 @@ h1, h2, h3, h4, h5, h6 {
 
 .validation-summary-errors {
   border-left: 4px solid #ef5350;
+}
+
+.validation-summary-errors ul {
+  padding-left: 1rem;
+  margin-bottom: 0;
 }
 
 .toggle-password {
