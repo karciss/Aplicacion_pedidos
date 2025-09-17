@@ -10,6 +10,7 @@ namespace Aplicacion_pedidos.Data
         }
 
         public DbSet<UserModel> Users { get; set; }
+        public DbSet<ProductModel> Products { get; set; }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -34,7 +35,22 @@ namespace Aplicacion_pedidos.Data
                 entity.HasIndex(e => e.Email).IsUnique();
             });
             
-            
+            // Configure the ProductModel entity
+            modelBuilder.Entity<ProductModel>(entity =>
+            {
+                // Table name
+                entity.ToTable("Products");
+                
+                // Primary key
+                entity.HasKey(e => e.Id);
+                
+                // Properties
+                entity.Property(e => e.Nombre).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Descripcion).HasMaxLength(500);
+                entity.Property(e => e.Precio).IsRequired().HasColumnType("decimal(10, 2)");
+                entity.Property(e => e.Stock).IsRequired();
+                entity.Property(e => e.Disponible).HasDefaultValue(true);
+            });
         }
     }
 }
