@@ -47,7 +47,10 @@
                         <label asp-for="Password" class="control-label"></label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-key"></i></span>
-                            <input asp-for="Password" class="form-control" />
+                            <input asp-for="Password" class="form-control" type="password" />
+                            <button class="btn btn-outline-secondary toggle-password" type="button">
+                                <i class="bi bi-eye"></i>
+                            </button>
                         </div>
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
@@ -58,8 +61,9 @@
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
                             <select asp-for="Rol" class="form-select">
-                                <option value="User">Usuario</option>
-                                <option value="Admin">Administrador</option>
+                                <option value="@Aplicacion_pedidos.Models.UserModel.ROLE_ADMIN">Administrador</option>
+                                <option value="@Aplicacion_pedidos.Models.UserModel.ROLE_CLIENTE">Cliente</option>
+                                <option value="@Aplicacion_pedidos.Models.UserModel.ROLE_EMPLEADO">Empleado</option>
                             </select>
                         </div>
                         <span asp-validation-for="Rol" class="text-danger"></span>
@@ -81,4 +85,21 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function() {
+            // Toggle password visibility
+            $('.toggle-password').click(function() {
+                var input = $(this).siblings('input');
+                var icon = $(this).find('i');
+                
+                if (input.attr('type') === 'password') {
+                    input.attr('type', 'text');
+                    icon.removeClass('bi-eye').addClass('bi-eye-slash');
+                } else {
+                    input.attr('type', 'password');
+                    icon.removeClass('bi-eye-slash').addClass('bi-eye');
+                }
+            });
+        });
+    </script>
 }

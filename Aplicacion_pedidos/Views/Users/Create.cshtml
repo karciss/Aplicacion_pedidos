@@ -64,8 +64,9 @@
                             <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
                             <select asp-for="Rol" class="form-select">
                                 <option value="">Seleccionar rol...</option>
-                                <option value="User">Usuario</option>
-                                <option value="Admin">Administrador</option>
+                                <option value="@Aplicacion_pedidos.Models.UserModel.ROLE_ADMIN">Administrador</option>
+                                <option value="@Aplicacion_pedidos.Models.UserModel.ROLE_CLIENTE">Cliente</option>
+                                <option value="@Aplicacion_pedidos.Models.UserModel.ROLE_EMPLEADO">Empleado</option>
                             </select>
                         </div>
                         <span asp-validation-for="Rol" class="text-danger"></span>

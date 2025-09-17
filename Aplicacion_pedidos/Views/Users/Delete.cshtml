@@ -2,6 +2,22 @@
 
 @{
     ViewData["Title"] = "Eliminar Usuario";
+    
+    string badgeClass = Model.Rol switch
+    {
+        UserModel.ROLE_ADMIN => "bg-danger",
+        UserModel.ROLE_EMPLEADO => "bg-success",
+        UserModel.ROLE_CLIENTE => "bg-primary",
+        _ => "bg-secondary"
+    };
+
+    string roleIcon = Model.Rol switch
+    {
+        UserModel.ROLE_ADMIN => "bi-shield-fill",
+        UserModel.ROLE_EMPLEADO => "bi-person-badge-fill",
+        UserModel.ROLE_CLIENTE => "bi-person-fill",
+        _ => "bi-question-circle-fill"
+    };
 }
 
 <div class="row mb-4">
@@ -51,7 +67,8 @@
                                 @Html.DisplayNameFor(model => model.Rol)
                             </div>
                             <div class="detail-value">
-                                <span class="badge rounded-pill @(Model.Rol == "Admin" ? "bg-danger" : "bg-primary")">
+                                <span class="badge rounded-pill @badgeClass">
+                                    <i class="bi @roleIcon me-1"></i>
                                     @Html.DisplayFor(model => model.Rol)
                                 </span>
                             </div>

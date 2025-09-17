@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Aplicacion_pedidos.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Aplicacion_pedidos.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,7 +51,7 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Seed the database with an admin user if no users exist
+    // Seed the database with example users
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<PedidosDBContext>();
@@ -58,19 +59,39 @@ using (var scope = app.Services.CreateScope())
     // Apply migrations
     dbContext.Database.Migrate();
     
-    // Seed admin user if no users exist
+    // Seed users if none exist
     if (!dbContext.Users.Any())
     {
-        dbContext.Users.Add(new Aplicacion_pedidos.Models.UserModel
+        // Add admin user
+        dbContext.Users.Add(new UserModel
         {
             Nombre = "Administrador",
             Email = "admin@example.com",
             Password = "admin123",  // In production, use a strong password and hash it
-            Rol = "Admin"
+            Rol = UserModel.ROLE_ADMIN
         });
+        
+        // Add employee user
+        dbContext.Users.Add(new UserModel
+        {
+            Nombre = "Empleado Ejemplo",
+            Email = "empleado@example.com",
+            Password = "empleado123",  // In production, use a strong password and hash it
+            Rol = UserModel.ROLE_EMPLEADO
+        });
+        
+        // Add client user
+        dbContext.Users.Add(new UserModel
+        {
+            Nombre = "Cliente Ejemplo",
+            Email = "cliente@example.com",
+            Password = "cliente123",  // In production, use a strong password and hash it
+            Rol = UserModel.ROLE_CLIENTE
+        });
+        
         dbContext.SaveChanges();
         
-        Console.WriteLine("Database seeded with admin user.");
+        Console.WriteLine("Database seeded with example users.");
     }
 }
 

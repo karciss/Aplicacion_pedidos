@@ -5,6 +5,11 @@ namespace Aplicacion_pedidos.Models
 {
     public class UserModel
     {
+        // Role constants
+        public const string ROLE_ADMIN = "Admin";
+        public const string ROLE_CLIENTE = "Cliente";
+        public const string ROLE_EMPLEADO = "Empleado";
+
         [Key]
         public int Id { get; set; }
 
@@ -30,6 +35,6 @@ namespace Aplicacion_pedidos.Models
         [Display(Name = "Rol")]
         public string Rol { get; set; }
 
-        
+        // Navigation properties can be added here if needed
     }
 }

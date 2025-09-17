@@ -73,7 +73,25 @@
                             @Html.DisplayFor(modelItem => item.Email)
                         </td>
                         <td>
-                            <span class="badge rounded-pill @(item.Rol == "Admin" ? "bg-danger" : "bg-primary")">
+                            @{
+                                string badgeClass = item.Rol switch
+                                {
+                                    UserModel.ROLE_ADMIN => "bg-danger",
+                                    UserModel.ROLE_EMPLEADO => "bg-success",
+                                    UserModel.ROLE_CLIENTE => "bg-primary",
+                                    _ => "bg-secondary"
+                                };
+
+                                string roleIcon = item.Rol switch
+                                {
+                                    UserModel.ROLE_ADMIN => "bi-shield-fill",
+                                    UserModel.ROLE_EMPLEADO => "bi-person-badge-fill",
+                                    UserModel.ROLE_CLIENTE => "bi-person-fill",
+                                    _ => "bi-question-circle-fill"
+                                };
+                            }
+                            <span class="badge rounded-pill @badgeClass">
+                                <i class="bi @roleIcon me-1"></i>
                                 @Html.DisplayFor(modelItem => item.Rol)
                             </span>
                         </td>

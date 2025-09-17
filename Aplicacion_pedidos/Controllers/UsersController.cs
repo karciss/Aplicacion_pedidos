@@ -23,14 +23,14 @@ namespace Aplicacion_pedidos.Controllers
         }
 
         // GET: Users
-        [AuthorizeRoles("Admin")]  // Only admins can see user list
+        [AuthorizeRoles(UserModel.ROLE_ADMIN)]  // Only admins can see user list
         public async Task<IActionResult> Index()
         {
             return View(await _context.Users.ToListAsync());
         }
 
         // GET: Users/Details/5
-        [AuthorizeRoles("Admin")]
+        [AuthorizeRoles(UserModel.ROLE_ADMIN)]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -49,7 +49,7 @@ namespace Aplicacion_pedidos.Controllers
         }
 
         // GET: Users/Create
-        [AuthorizeRoles("Admin")]
+        [AuthorizeRoles(UserModel.ROLE_ADMIN)]
         public IActionResult Create()
         {
             return View();
@@ -58,7 +58,7 @@ namespace Aplicacion_pedidos.Controllers
         // POST: Users/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [AuthorizeRoles("Admin")]
+        [AuthorizeRoles(UserModel.ROLE_ADMIN)]
         public async Task<IActionResult> Create([Bind("Id,Nombre,Email,Password,Rol")] UserModel userModel)
         {
             if (ModelState.IsValid)
@@ -67,6 +67,15 @@ namespace Aplicacion_pedidos.Controllers
                 if (await _context.Users.AnyAsync(u => u.Email == userModel.Email))
                 {
                     ModelState.AddModelError("Email", "Este correo electrónico ya está registrado.");
+                    return View(userModel);
+                }
+
+                // Validate role is one of the allowed roles
+                if (userModel.Rol != UserModel.ROLE_ADMIN && 
+                    userModel.Rol != UserModel.ROLE_CLIENTE && 
+                    userModel.Rol != UserModel.ROLE_EMPLEADO)
+                {
+                    ModelState.AddModelError("Rol", "El rol seleccionado no es válido.");
                     return View(userModel);
                 }
 
@@ -79,7 +88,7 @@ namespace Aplicacion_pedidos.Controllers
         }
 
         // GET: Users/Edit/5
-        [AuthorizeRoles("Admin")]
+        [AuthorizeRoles(UserModel.ROLE_ADMIN)]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -98,7 +107,7 @@ namespace Aplicacion_pedidos.Controllers
         // POST: Users/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [AuthorizeRoles("Admin")]
+        [AuthorizeRoles(UserModel.ROLE_ADMIN)]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Nombre,Email,Password,Rol")] UserModel userModel)
         {
             if (id != userModel.Id)
@@ -114,6 +123,25 @@ namespace Aplicacion_pedidos.Controllers
                     if (await _context.Users.AnyAsync(u => u.Email == userModel.Email && u.Id != userModel.Id))
                     {
                         ModelState.AddModelError("Email", "Este correo electrónico ya está registrado.");
+                        return View(userModel);
+                    }
+
+                    // Validate role is one of the allowed roles
+                    if (userModel.Rol != UserModel.ROLE_ADMIN && 
+                        userModel.Rol != UserModel.ROLE_CLIENTE && 
+                        userModel.Rol != UserModel.ROLE_EMPLEADO)
+                    {
+                        ModelState.AddModelError("Rol", "El rol seleccionado no es válido.");
+                        return View(userModel);
+                    }
+
+                    // Check if this is the last admin and trying to change role
+                    var originalUser = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
+                    if (originalUser.Rol == UserModel.ROLE_ADMIN && 
+                        userModel.Rol != UserModel.ROLE_ADMIN && 
+                        await _context.Users.CountAsync(u => u.Rol == UserModel.ROLE_ADMIN) <= 1)
+                    {
+                        ModelState.AddModelError("Rol", "No se puede cambiar el rol del último administrador.");
                         return View(userModel);
                     }
 
@@ -138,7 +166,7 @@ namespace Aplicacion_pedidos.Controllers
         }
 
         // GET: Users/Delete/5
-        [AuthorizeRoles("Admin")]
+        [AuthorizeRoles(UserModel.ROLE_ADMIN)]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -159,14 +187,15 @@ namespace Aplicacion_pedidos.Controllers
         // POST: Users/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [AuthorizeRoles("Admin")]
+        [AuthorizeRoles(UserModel.ROLE_ADMIN)]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var userModel = await _context.Users.FindAsync(id);
             if (userModel != null)
             {
                 // Prevent deleting the last admin
-                if (userModel.Rol == "Admin" && await _context.Users.CountAsync(u => u.Rol == "Admin") <= 1)
+                if (userModel.Rol == UserModel.ROLE_ADMIN && 
+                    await _context.Users.CountAsync(u => u.Rol == UserModel.ROLE_ADMIN) <= 1)
                 {
                     TempData["ErrorMessage"] = "No se puede eliminar el último administrador del sistema.";
                     return RedirectToAction(nameof(Index));
