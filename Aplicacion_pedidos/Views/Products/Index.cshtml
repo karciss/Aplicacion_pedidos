@@ -1,59 +1,167 @@
 ﻿@model IEnumerable<Aplicacion_pedidos.Models.ProductModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Productos";
 }
 
-<h1>Index</h1>
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="mb-0"><i class="bi bi-box2-heart me-2"></i>Catálogo de Productos</h2>
+        <p class="text-muted">Administre el catálogo de productos disponibles</p>
+    </div>
+    <div class="col-md-6 text-end">
+        @if (User.IsInRole(UserModel.ROLE_ADMIN) || User.IsInRole(UserModel.ROLE_EMPLEADO))
+        {
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>Crear Nuevo Producto
+            </a>
+        }
+    </div>
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Nombre)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Descripcion)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Precio)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Stock)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Disponible)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Nombre)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Descripcion)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Precio)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Stock)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Disponible)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 }
-    </tbody>
-</table>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i> @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+        <div class="row align-items-center">
+            <div class="col">
+                <h5 class="mb-0">Listado de Productos</h5>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">
+                            @Html.DisplayNameFor(model => model.Nombre)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Descripcion)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Precio)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Stock)
+                        </th>
+                        <th class="text-center">
+                            @Html.DisplayNameFor(model => model.Disponible)
+                        </th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model) {
+                    <tr>
+                        <td class="ps-3">
+                            <div class="d-flex align-items-center">
+                                <div class="product-circle me-2">
+                                    <i class="bi bi-box2-heart"></i>
+                                </div>
+                                <span class="fw-medium">@Html.DisplayFor(modelItem => item.Nombre)</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="description-cell">
+                                @Html.DisplayFor(modelItem => item.Descripcion)
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-info text-dark">
+                                <i class="bi bi-tag-fill me-1"></i>
+                                @Html.DisplayFor(modelItem => item.Precio)
+                            </span>
+                        </td>
+                        <td>
+                            <div class="stock-indicator">
+                                @if (item.Stock > 10)
+                                {
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-check-circle me-1"></i> @Html.DisplayFor(modelItem => item.Stock)
+                                    </span>
+                                }
+                                else if (item.Stock > 0)
+                                {
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="bi bi-exclamation-triangle me-1"></i> @Html.DisplayFor(modelItem => item.Stock)
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">
+                                        <i class="bi bi-x-circle me-1"></i> Agotado
+                                    </span>
+                                }
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            @if (item.Disponible)
+                            {
+                                <span class="badge bg-success"><i class="bi bi-check-circle"></i></span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary"><i class="bi bi-dash-circle"></i></span>
+                            }
+                        </td>
+                        <td>
+                            <div class="text-center">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info btn-sm">
+                                    <i class="bi bi-info-circle"></i>
+                                </a>
+
+                                @if (User.IsInRole(UserModel.ROLE_ADMIN) || User.IsInRole(UserModel.ROLE_EMPLEADO))
+                                {
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                }
+
+                                @if (User.IsInRole(UserModel.ROLE_ADMIN))
+                                {
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Add subtle animation when hovering over table rows
+            $("table tbody tr").hover(
+                function() { $(this).addClass("table-hover-effect"); },
+                function() { $(this).removeClass("table-hover-effect"); }
+            );
+            
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function() {
+                $(".alert").alert('close');
+            }, 5000);
+        });
+    </script>
+}

@@ -30,16 +30,35 @@
                         </li>
                         @if (User.Identity.IsAuthenticated)
                         {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Products" asp-action="Index">
+                                    <i class="bi bi-box2-heart me-1"></i> Productos
+                                </a>
+                            </li>
+                        }
+                        @if (User.Identity.IsAuthenticated)
+                        {
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="bi bi-people me-1"></i> Administración
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <li>
-                                        <a class="dropdown-item" asp-area="" asp-controller="Users" asp-action="Index">
-                                            <i class="bi bi-person-gear me-2"></i>Usuarios
-                                        </a>
-                                    </li>
+                                    @if (User.IsInRole(UserModel.ROLE_ADMIN))
+                                    {
+                                        <li>
+                                            <a class="dropdown-item" asp-area="" asp-controller="Users" asp-action="Index">
+                                                <i class="bi bi-person-gear me-2"></i>Usuarios
+                                            </a>
+                                        </li>
+                                    }
+                                    @if (User.IsInRole(UserModel.ROLE_ADMIN) || User.IsInRole(UserModel.ROLE_EMPLEADO))
+                                    {
+                                        <li>
+                                            <a class="dropdown-item" asp-area="" asp-controller="Products" asp-action="Index">
+                                                <i class="bi bi-box2-heart me-2"></i>Productos
+                                            </a>
+                                        </li>
+                                    }
                                     <!-- Puedes agregar más opciones de administración aquí -->
                                 </ul>
                             </li>

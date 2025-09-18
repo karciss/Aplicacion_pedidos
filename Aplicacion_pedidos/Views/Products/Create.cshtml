@@ -1,48 +1,102 @@
 ﻿@model Aplicacion_pedidos.Models.ProductModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Crear Producto";
 }
 
-<h1>Create</h1>
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Crear Nuevo Producto</h2>
+        <p class="text-muted">Complete el formulario para registrar un nuevo producto</p>
+    </div>
+</div>
 
-<h4>ProductModel</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Nombre" class="control-label"></label>
-                <input asp-for="Nombre" class="form-control" />
-                <span asp-validation-for="Nombre" class="text-danger"></span>
+<div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+        <h5 class="mb-0">Información del Producto</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create" class="product-form">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3 p-3 bg-light rounded"></div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="form-group">
+                        <label asp-for="Nombre" class="form-label">Nombre del producto</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-box2-heart"></i></span>
+                            <input asp-for="Nombre" class="form-control" placeholder="Ingrese el nombre del producto" />
+                        </div>
+                        <span asp-validation-for="Nombre" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="form-group">
+                        <label asp-for="Precio" class="form-label">Precio</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-tag"></i></span>
+                            <input asp-for="Precio" class="form-control" placeholder="0.00" />
+                        </div>
+                        <span asp-validation-for="Precio" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Descripcion" class="control-label"></label>
-                <input asp-for="Descripcion" class="form-control" />
-                <span asp-validation-for="Descripcion" class="text-danger"></span>
+            
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <div class="form-group">
+                        <label asp-for="Descripcion" class="form-label">Descripción</label>
+                        <textarea asp-for="Descripcion" class="form-control" placeholder="Descripción detallada del producto" rows="3"></textarea>
+                        <span asp-validation-for="Descripcion" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Precio" class="control-label"></label>
-                <input asp-for="Precio" class="form-control" />
-                <span asp-validation-for="Precio" class="text-danger"></span>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="form-group">
+                        <label asp-for="Stock" class="form-label">Stock</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-boxes"></i></span>
+                            <input asp-for="Stock" class="form-control" placeholder="Cantidad disponible" type="number" min="0" />
+                        </div>
+                        <span asp-validation-for="Stock" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="form-group form-check mt-4">
+                        <input asp-for="Disponible" class="form-check-input" />
+                        <label asp-for="Disponible" class="form-check-label">Disponible para la venta</label>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Stock" class="control-label"></label>
-                <input asp-for="Stock" class="form-control" />
-                <span asp-validation-for="Stock" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+            
+            <hr />
+            <div class="d-flex mt-3">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-check-circle me-1"></i> Crear Producto
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Volver al Listado
+                </a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function() {
+            // Form validation highlight effect
+            $('form').on('submit', function() {
+                if (!this.checkValidity()) {
+                    $('.text-danger').closest('.form-group').addClass('animate__animated animate__headShake');
+                    setTimeout(function() {
+                        $('.form-group').removeClass('animate__animated animate__headShake');
+                    }, 1000);
+                }
+            });
+        });
+    </script>
 }

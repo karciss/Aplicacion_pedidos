@@ -1,48 +1,143 @@
 ﻿@model Aplicacion_pedidos.Models.ProductModel
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalles del Producto";
 }
 
-<h1>Details</h1>
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="mb-0"><i class="bi bi-info-circle me-2"></i>Detalles del Producto</h2>
+        <p class="text-muted">Información completa del producto</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <div class="product-circle-lg me-2 bg-light">
+            <i class="bi bi-box2-heart"></i>
+        </div>
+    </div>
+</div>
 
-<div>
-    <h4>ProductModel</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Nombre)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Nombre)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Descripcion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Descripcion)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Precio)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Precio)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Stock)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Stock)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Disponible)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Disponible)
-        </dd>
-    </dl>
+<div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+        <h5 class="mb-0">@Model.Nombre</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="col-md-12 mb-4">
+                        <div class="detail-item">
+                            <div class="detail-label">
+                                <i class="bi bi-box2-heart me-2 text-primary"></i>
+                                @Html.DisplayNameFor(model => model.Descripcion)
+                            </div>
+                            <div class="detail-value">
+                                @if (string.IsNullOrEmpty(Model.Descripcion))
+                                {
+                                    <span class="text-muted">Sin descripción</span>
+                                }
+                                else
+                                {
+                                    @Html.DisplayFor(model => model.Descripcion)
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="detail-item">
+                            <div class="detail-label">
+                                <i class="bi bi-tag me-2 text-primary"></i>
+                                @Html.DisplayNameFor(model => model.Precio)
+                            </div>
+                            <div class="detail-value">
+                                <span class="badge bg-info text-dark p-2">
+                                    <i class="bi bi-currency-dollar me-1"></i>
+                                    @Html.DisplayFor(model => model.Precio)
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="detail-item">
+                            <div class="detail-label">
+                                <i class="bi bi-boxes me-2 text-primary"></i>
+                                @Html.DisplayNameFor(model => model.Stock)
+                            </div>
+                            <div class="detail-value">
+                                @if (Model.Stock > 10)
+                                {
+                                    <span class="badge bg-success p-2">
+                                        <i class="bi bi-check-circle me-1"></i> @Html.DisplayFor(model => model.Stock) unidades
+                                    </span>
+                                }
+                                else if (Model.Stock > 0)
+                                {
+                                    <span class="badge bg-warning text-dark p-2">
+                                        <i class="bi bi-exclamation-triangle me-1"></i> @Html.DisplayFor(model => model.Stock) unidades
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger p-2">
+                                        <i class="bi bi-x-circle me-1"></i> Agotado
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="detail-item">
+                            <div class="detail-label">
+                                <i class="bi bi-toggle-on me-2 text-primary"></i>
+                                @Html.DisplayNameFor(model => model.Disponible)
+                            </div>
+                            <div class="detail-value">
+                                @if (Model.Disponible)
+                                {
+                                    <span class="badge bg-success p-2">Disponible</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary p-2">No disponible</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="product-image-container">
+                    <div class="product-image-placeholder">
+                        <i class="bi bi-box2-heart"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer bg-white py-3">
+        <div class="d-flex">
+            @if (User.IsInRole(UserModel.ROLE_ADMIN) || User.IsInRole(UserModel.ROLE_EMPLEADO))
+            {
+                <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-warning me-2">
+                    <i class="bi bi-pencil-square me-1"></i> Editar
+                </a>
+            }
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Volver al Listado
+            </a>
+        </div>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Add subtle animation when hovering over details
+            $(".detail-item").hover(
+                function() { $(this).addClass("detail-hover"); },
+                function() { $(this).removeClass("detail-hover"); }
+            );
+        });
+    </script>
+}

@@ -7,9 +7,12 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Aplicacion_pedidos.Data;
 using Aplicacion_pedidos.Models;
+using Microsoft.AspNetCore.Authorization;
+using Aplicacion_pedidos.Filters;
 
 namespace Aplicacion_pedidos.Controllers
 {
+    [Authorize]  // Requiere que el usuario esté autenticado para todas las acciones
     public class ProductsController : Controller
     {
         private readonly PedidosDBContext _context;
@@ -44,6 +47,7 @@ namespace Aplicacion_pedidos.Controllers
         }
 
         // GET: Products/Create
+        [AuthorizeRoles(UserModel.ROLE_ADMIN, UserModel.ROLE_EMPLEADO)]  // Solo admins y empleados pueden crear
         public IActionResult Create()
         {
             return View();
@@ -54,18 +58,21 @@ namespace Aplicacion_pedidos.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AuthorizeRoles(UserModel.ROLE_ADMIN, UserModel.ROLE_EMPLEADO)]  // Solo admins y empleados pueden crear
         public async Task<IActionResult> Create([Bind("Id,Nombre,Descripcion,Precio,Stock,Disponible")] ProductModel productModel)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(productModel);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Producto creado correctamente.";
                 return RedirectToAction(nameof(Index));
             }
             return View(productModel);
         }
 
         // GET: Products/Edit/5
+        [AuthorizeRoles(UserModel.ROLE_ADMIN, UserModel.ROLE_EMPLEADO)]  // Solo admins y empleados pueden editar
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -86,6 +93,7 @@ namespace Aplicacion_pedidos.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AuthorizeRoles(UserModel.ROLE_ADMIN, UserModel.ROLE_EMPLEADO)]  // Solo admins y empleados pueden editar
         public async Task<IActionResult> Edit(int id, [Bind("Id,Nombre,Descripcion,Precio,Stock,Disponible")] ProductModel productModel)
         {
             if (id != productModel.Id)
@@ -99,6 +107,7 @@ namespace Aplicacion_pedidos.Controllers
                 {
                     _context.Update(productModel);
                     await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Producto actualizado correctamente.";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -117,6 +126,7 @@ namespace Aplicacion_pedidos.Controllers
         }
 
         // GET: Products/Delete/5
+        [AuthorizeRoles(UserModel.ROLE_ADMIN)]  // Solo admins pueden eliminar
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -137,15 +147,17 @@ namespace Aplicacion_pedidos.Controllers
         // POST: Products/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [AuthorizeRoles(UserModel.ROLE_ADMIN)]  // Solo admins pueden eliminar
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var productModel = await _context.Products.FindAsync(id);
             if (productModel != null)
             {
                 _context.Products.Remove(productModel);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Producto eliminado correctamente.";
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
