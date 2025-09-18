@@ -50,17 +50,31 @@ namespace Aplicacion_pedidos.Controllers
         [AuthorizeRoles(UserModel.ROLE_ADMIN, UserModel.ROLE_EMPLEADO)]  // Solo admins y empleados pueden crear
         public IActionResult Create()
         {
-            return View();
+            var producto = new ProductModel
+            {
+                Disponible = true,
+                Stock = 0
+            };
+            return View(producto);
         }
 
         // POST: Products/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AuthorizeRoles(UserModel.ROLE_ADMIN, UserModel.ROLE_EMPLEADO)]  // Solo admins y empleados pueden crear
         public async Task<IActionResult> Create([Bind("Id,Nombre,Descripcion,Precio,Stock,Disponible")] ProductModel productModel)
         {
+            // Validaciones adicionales específicas
+            if (productModel.Precio <= 0)
+            {
+                ModelState.AddModelError("Precio", "El precio debe ser mayor que cero");
+            }
+            
+            if (productModel.Stock < 0)
+            {
+                ModelState.AddModelError("Stock", "El stock no puede ser negativo");
+            }
+            
             if (ModelState.IsValid)
             {
                 _context.Add(productModel);
@@ -89,8 +103,6 @@ namespace Aplicacion_pedidos.Controllers
         }
 
         // POST: Products/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AuthorizeRoles(UserModel.ROLE_ADMIN, UserModel.ROLE_EMPLEADO)]  // Solo admins y empleados pueden editar
@@ -99,6 +111,17 @@ namespace Aplicacion_pedidos.Controllers
             if (id != productModel.Id)
             {
                 return NotFound();
+            }
+
+            // Validaciones adicionales específicas
+            if (productModel.Precio <= 0)
+            {
+                ModelState.AddModelError("Precio", "El precio debe ser mayor que cero");
+            }
+            
+            if (productModel.Stock < 0)
+            {
+                ModelState.AddModelError("Stock", "El stock no puede ser negativo");
             }
 
             if (ModelState.IsValid)

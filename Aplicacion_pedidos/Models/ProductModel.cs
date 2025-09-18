@@ -19,17 +19,16 @@ namespace Aplicacion_pedidos.Models
         public string Descripcion { get; set; }
 
         [Required(ErrorMessage = "El precio es obligatorio")]
-        [Range(0.01, 99999.99, ErrorMessage = "El precio debe estar entre {1} y {2}")]
+        [Range(0.01, 99999.99, ErrorMessage = "El precio debe ser positivo (mayor a 0) y no puede superar {2}")]
         [Column(TypeName = "decimal(10, 2)")]
         [Display(Name = "Precio")]
         [DisplayFormat(DataFormatString = "{0:C}", ApplyFormatInEditMode = false)]
         public decimal Precio { get; set; }
 
         [Required(ErrorMessage = "El stock es obligatorio")]
-        [Range(0, 10000, ErrorMessage = "El stock debe estar entre {1} y {2}")]
+        [Range(0, 10000, ErrorMessage = "El stock no puede ser negativo y no debe superar {2} unidades")]
         [Display(Name = "Stock")]
         public int Stock { get; set; }
-
 
         [Display(Name = "Disponible")]
         public bool Disponible { get; set; } = true;
