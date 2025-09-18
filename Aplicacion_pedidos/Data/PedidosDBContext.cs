@@ -11,6 +11,7 @@ namespace Aplicacion_pedidos.Data
 
         public DbSet<UserModel> Users { get; set; }
         public DbSet<ProductModel> Products { get; set; }
+        public DbSet<OrderModel> Orders { get; set; }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -50,6 +51,27 @@ namespace Aplicacion_pedidos.Data
                 entity.Property(e => e.Precio).IsRequired().HasColumnType("decimal(10, 2)");
                 entity.Property(e => e.Stock).IsRequired();
                 entity.Property(e => e.Disponible).HasDefaultValue(true);
+            });
+            
+            // Configure the OrderModel entity
+            modelBuilder.Entity<OrderModel>(entity =>
+            {
+                // Table name
+                entity.ToTable("Orders");
+                
+                // Primary key
+                entity.HasKey(e => e.Id);
+                
+                // Properties
+                entity.Property(e => e.FechaPedido).IsRequired();
+                entity.Property(e => e.Estado).IsRequired();
+                entity.Property(e => e.Total).IsRequired().HasColumnType("decimal(10, 2)");
+                
+                // Relationships
+                entity.HasOne(e => e.Cliente)
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }
