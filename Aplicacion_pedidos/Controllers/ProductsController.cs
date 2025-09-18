@@ -23,9 +23,50 @@ namespace Aplicacion_pedidos.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, string categoria, decimal? precioMin, decimal? precioMax)
         {
-            return View(await _context.Products.ToListAsync());
+            // Inicializar la consulta base
+            var productos = from p in _context.Products
+                            select p;
+
+            // Aplicar filtros si se proporcionaron
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                productos = productos.Where(p => p.Nombre.Contains(searchString) || p.Descripcion.Contains(searchString));
+                ViewData["CurrentFilter"] = searchString;
+            }
+
+            if (!string.IsNullOrEmpty(categoria) && categoria != "Todas")
+            {
+                productos = productos.Where(p => p.Categoria == categoria);
+                ViewData["CurrentCategoria"] = categoria;
+            }
+
+            if (precioMin.HasValue)
+            {
+                productos = productos.Where(p => p.Precio >= precioMin.Value);
+                ViewData["CurrentPrecioMin"] = precioMin.Value;
+            }
+
+            if (precioMax.HasValue)
+            {
+                productos = productos.Where(p => p.Precio <= precioMax.Value);
+                ViewData["CurrentPrecioMax"] = precioMax.Value;
+            }
+
+            // Obtener categorías únicas para el filtro de categorías
+            var categorias = await _context.Products
+                                    .Select(p => p.Categoria)
+                                    .Distinct()
+                                    .Where(c => c != null)
+                                    .ToListAsync();
+            ViewData["Categorias"] = new SelectList(new List<string> { "Todas" }.Concat(categorias));
+            
+            // Obtener precios mínimos y máximos para referencia
+            ViewData["PrecioMinimoDisponible"] = await productos.MinAsync(p => (decimal?)p.Precio) ?? 0;
+            ViewData["PrecioMaximoDisponible"] = await productos.MaxAsync(p => (decimal?)p.Precio) ?? 1000;
+
+            return View(await productos.ToListAsync());
         }
 
         // GET: Products/Details/5
@@ -62,7 +103,7 @@ namespace Aplicacion_pedidos.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AuthorizeRoles(UserModel.ROLE_ADMIN, UserModel.ROLE_EMPLEADO)]  // Solo admins y empleados pueden crear
-        public async Task<IActionResult> Create([Bind("Id,Nombre,Descripcion,Precio,Stock,Disponible")] ProductModel productModel)
+        public async Task<IActionResult> Create([Bind("Id,Nombre,Descripcion,Precio,Stock,Disponible,Categoria")] ProductModel productModel)
         {
             // Validaciones adicionales específicas
             if (productModel.Precio <= 0)
@@ -106,7 +147,7 @@ namespace Aplicacion_pedidos.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AuthorizeRoles(UserModel.ROLE_ADMIN, UserModel.ROLE_EMPLEADO)]  // Solo admins y empleados pueden editar
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Nombre,Descripcion,Precio,Stock,Disponible")] ProductModel productModel)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Nombre,Descripcion,Precio,Stock,Disponible,Categoria")] ProductModel productModel)
         {
             if (id != productModel.Id)
             {

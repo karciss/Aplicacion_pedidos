@@ -30,6 +30,10 @@ namespace Aplicacion_pedidos.Models
         [Display(Name = "Stock")]
         public int Stock { get; set; }
 
+        [Display(Name = "Categoría")]
+        [StringLength(50)]
+        public string Categoria { get; set; }
+
         [Display(Name = "Disponible")]
         public bool Disponible { get; set; } = true;
 

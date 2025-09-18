@@ -2,6 +2,12 @@
 
 @{
     ViewData["Title"] = "Productos";
+    var currentFilter = ViewData["CurrentFilter"] as string ?? "";
+    var currentCategoria = ViewData["CurrentCategoria"] as string ?? "Todas";
+    var currentPrecioMin = ViewData["CurrentPrecioMin"] as decimal? ?? 0;
+    var currentPrecioMax = ViewData["CurrentPrecioMax"] as decimal? ?? 10000;
+    var precioMinimoDisponible = ViewData["PrecioMinimoDisponible"] as decimal? ?? 0;
+    var precioMaximoDisponible = ViewData["PrecioMaximoDisponible"] as decimal? ?? 1000;
 }
 
 <div class="row mb-4">
@@ -35,11 +41,113 @@
     </div>
 }
 
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white py-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-search me-2"></i>Buscar y Filtrar</h5>
+            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
+                <i class="bi bi-chevron-down"></i>
+            </button>
+        </div>
+    </div>
+    <div class="collapse show" id="filterCollapse">
+        <div class="card-body py-2">
+            <form asp-action="Index" method="get" id="searchForm" class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <label for="searchString" class="form-label small mb-1">Buscar</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
+                        <input type="text" id="searchString" name="searchString" class="form-control border-start-0" placeholder="Por nombre o descripción..." value="@currentFilter" />
+                        @if (!string.IsNullOrEmpty(currentFilter))
+                        {
+                            <button type="button" class="btn btn-outline-secondary border-start-0" onclick="clearSearch('searchString')">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        }
+                    </div>
+                </div>
+                
+                <div class="col-md-2">
+                    <label for="categoria" class="form-label small mb-1">Categoría</label>
+                    <select id="categoria" name="categoria" class="form-select">
+                        @if (ViewData["Categorias"] is SelectList categorias)
+                        {
+                            @foreach (var item in categorias)
+                            {
+                                if (item.Value == currentCategoria)
+                                {
+                                    <option value="@item.Value" selected>@item.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            }
+                        }
+                        else
+                        {
+                            <option value="Todas">Todas</option>
+                        }
+                    </select>
+                </div>
+                
+                <div class="col-md-2">
+                    <label for="precioMin" class="form-label small mb-1">Precio mín.</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                        <input type="number" id="precioMin" name="precioMin" class="form-control" placeholder="Min" value="@currentPrecioMin" min="0" step="0.01" />
+                    </div>
+                </div>
+                
+                <div class="col-md-2">
+                    <label for="precioMax" class="form-label small mb-1">Precio máx.</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                        <input type="number" id="precioMax" name="precioMax" class="form-control" placeholder="Max" value="@currentPrecioMax" min="0" step="0.01" />
+                    </div>
+                </div>
+                
+                <div class="col-md-2">
+                    <div class="d-flex">
+                        <button type="submit" class="btn btn-primary w-100 me-1" title="Buscar productos">
+                            <i class="bi bi-search"></i> Buscar
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary" title="Limpiar filtros">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="card shadow-sm">
     <div class="card-header bg-white py-3">
         <div class="row align-items-center">
             <div class="col">
                 <h5 class="mb-0">Listado de Productos</h5>
+                @if (!string.IsNullOrEmpty(currentFilter) || currentCategoria != "Todas" || currentPrecioMin > 0 || currentPrecioMax < 10000)
+                {
+                    <small class="text-muted d-block mt-1">
+                        <i class="bi bi-funnel-fill me-1"></i> Filtros activos:
+                        @if (!string.IsNullOrEmpty(currentFilter))
+                        {
+                            <span class="badge bg-light text-dark me-1">Texto: @currentFilter</span>
+                        }
+                        @if (currentCategoria != "Todas")
+                        {
+                            <span class="badge bg-light text-dark me-1">Categoría: @currentCategoria</span>
+                        }
+                        @if (currentPrecioMin > 0 || currentPrecioMax < 10000)
+                        {
+                            <span class="badge bg-light text-dark me-1">Precio: @currentPrecioMin.ToString("C") - @currentPrecioMax.ToString("C")</span>
+                        }
+                    </small>
+                }
+            </div>
+            <div class="col-auto">
+                <span class="badge bg-info">@Model.Count() productos encontrados</span>
             </div>
         </div>
     </div>
@@ -50,6 +158,9 @@
                     <tr>
                         <th class="ps-3">
                             @Html.DisplayNameFor(model => model.Nombre)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Categoria)
                         </th>
                         <th>
                             @Html.DisplayNameFor(model => model.Descripcion)
@@ -76,6 +187,9 @@
                                 </div>
                                 <span class="fw-medium">@Html.DisplayFor(modelItem => item.Nombre)</span>
                             </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">@(string.IsNullOrEmpty(item.Categoria) ? "Sin categoría" : item.Categoria)</span>
                         </td>
                         <td>
                             <div class="description-cell">
@@ -146,6 +260,13 @@
                 </tbody>
             </table>
         </div>
+        @if(!Model.Any())
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-search" style="font-size: 3rem; color: #ccc;"></i>
+                <p class="text-muted mt-3">No se encontraron productos con los criterios de búsqueda actuales.</p>
+            </div>
+        }
     </div>
 </div>
 
@@ -163,5 +284,11 @@
                 $(".alert").alert('close');
             }, 5000);
         });
+        
+        // Función para limpiar la búsqueda
+        function clearSearch(fieldId) {
+            $('#' + fieldId).val('');
+            $('#searchForm').submit();
+        }
     </script>
 }

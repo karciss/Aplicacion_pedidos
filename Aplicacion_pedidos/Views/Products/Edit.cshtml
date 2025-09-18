@@ -33,13 +33,46 @@
                 </div>
                 <div class="col-md-6 mb-3">
                     <div class="form-group">
-                        <label asp-for="Precio" class="form-label">Precio</label>
+                        <label asp-for="Categoria" class="form-label">Categoría</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-tag"></i></span>
+                            <select asp-for="Categoria" class="form-select">
+                                <option value="">-- Seleccione una categoría --</option>
+                                <option value="Electrónica">Electrónica</option>
+                                <option value="Ropa">Ropa</option>
+                                <option value="Hogar">Hogar</option>
+                                <option value="Alimentos">Alimentos</option>
+                                <option value="Juguetes">Juguetes</option>
+                                <option value="Libros">Libros</option>
+                                <option value="Deportes">Deportes</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="form-group">
+                        <label asp-for="Precio" class="form-label">Precio</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                             <input asp-for="Precio" class="form-control" min="0.01" step="0.01" type="number" />
                         </div>
                         <small class="text-muted">El precio debe ser mayor que cero</small>
                         <span asp-validation-for="Precio" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="form-group">
+                        <label asp-for="Stock" class="form-label">Stock</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-boxes"></i></span>
+                            <input asp-for="Stock" class="form-control" type="number" min="0" />
+                        </div>
+                        <small class="text-muted">El stock no puede ser negativo</small>
+                        <span asp-validation-for="Stock" class="text-danger"></span>
                     </div>
                 </div>
             </div>
@@ -52,22 +85,8 @@
                         <span asp-validation-for="Descripcion" class="text-danger"></span>
                     </div>
                 </div>
-            </div>
-            
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <div class="form-group">
-                        <label asp-for="Stock" class="form-label">Stock</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-boxes"></i></span>
-                            <input asp-for="Stock" class="form-control" type="number" min="0" />
-                        </div>
-                        <small class="text-muted">El stock no puede ser negativo</small>
-                        <span asp-validation-for="Stock" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <div class="form-group form-check mt-4">
+                <div class="col-md-12 mb-3">
+                    <div class="form-group form-check">
                         <input asp-for="Disponible" class="form-check-input" />
                         <label asp-for="Disponible" class="form-check-label">Disponible para la venta</label>
                     </div>
