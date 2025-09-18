@@ -1,0 +1,123 @@
+﻿@model IEnumerable<Aplicacion_pedidos.Models.OrderItemModel>
+
+@{
+    ViewData["Title"] = "Elementos de Pedido";
+}
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="mb-0"><i class="bi bi-list-check me-2"></i>Elementos de Pedido</h2>
+        <p class="text-muted">Administre los productos incluidos en los pedidos</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-2"></i>Crear Nuevo Elemento
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+        <h5 class="mb-0">Listado de Elementos</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">Pedido</th>
+                        <th>Producto</th>
+                        <th class="text-center">Cantidad</th>
+                        <th class="text-end">Subtotal</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model) {
+                    <tr>
+                        <td class="ps-3">
+                            <div class="d-flex align-items-center">
+                                <div class="order-circle me-2">
+                                    <i class="bi bi-receipt"></i>
+                                </div>
+                                <a asp-controller="Orders" asp-action="Details" asp-route-id="@item.OrderId" class="text-decoration-none">
+                                    Pedido #@item.OrderId
+                                </a>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="product-circle me-2">
+                                    <i class="bi bi-box"></i>
+                                </div>
+                                <span>@item.Producto.Nombre</span>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge bg-secondary">
+                                @item.Cantidad unidades
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <span class="badge bg-light text-dark fs-6">
+                                <i class="bi bi-currency-dollar me-1"></i>
+                                @item.Subtotal.ToString("C")
+                            </span>
+                        </td>
+                        <td>
+                            <div class="text-center">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info btn-sm">
+                                    <i class="bi bi-info-circle"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        @if(!Model.Any())
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-clipboard-x" style="font-size: 3rem; color: #ccc;"></i>
+                <p class="text-muted mt-3">No hay elementos de pedido registrados.</p>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .order-circle,
+    .product-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+    }
+
+    .table-hover tr:hover {
+        background-color: rgba(0, 0, 0, 0.03);
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Add subtle animation when hovering over table rows
+            $("table tbody tr").hover(
+                function() { $(this).addClass("table-hover-effect"); },
+                function() { $(this).removeClass("table-hover-effect"); }
+            );
+        });
+    </script>
+}

@@ -1,0 +1,107 @@
+﻿@model Aplicacion_pedidos.Models.OrderItemModel
+
+@{
+    ViewData["Title"] = "Crear Elemento";
+}
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Crear Elemento de Pedido</h2>
+        <p class="text-muted">Añada un nuevo producto a un pedido</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Volver al Listado
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+        <h5 class="mb-0">Información del Elemento</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3 p-3 bg-light rounded"></div>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="OrderId" class="form-label">Pedido</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-receipt"></i></span>
+                            <select asp-for="OrderId" class="form-select" asp-items="ViewBag.OrderId">
+                                <option value="">-- Seleccionar Pedido --</option>
+                            </select>
+                        </div>
+                        <span asp-validation-for="OrderId" class="text-danger"></span>
+                        <small class="text-muted">Seleccione el pedido al que desea añadir este producto</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="ProductId" class="form-label">Producto</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-box2"></i></span>
+                            <select asp-for="ProductId" class="form-select" asp-items="ViewBag.ProductId">
+                                <option value="">-- Seleccionar Producto --</option>
+                            </select>
+                        </div>
+                        <span asp-validation-for="ProductId" class="text-danger"></span>
+                        <small class="text-muted">Elija el producto que desea añadir al pedido</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Cantidad" class="form-label">Cantidad</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-123"></i></span>
+                            <input asp-for="Cantidad" class="form-control" min="1" type="number" />
+                        </div>
+                        <span asp-validation-for="Cantidad" class="text-danger"></span>
+                        <small class="text-muted">Indique la cantidad de unidades del producto</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Subtotal" class="form-label">Subtotal</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                            <input asp-for="Subtotal" class="form-control" step="0.01" type="number" />
+                        </div>
+                        <span asp-validation-for="Subtotal" class="text-danger"></span>
+                        <small class="text-muted">El subtotal debe ser el precio unitario multiplicado por la cantidad</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-top pt-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle me-1"></i> Crear Elemento
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary ms-1">
+                    <i class="bi bi-x-circle me-1"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function() {
+            // Función para calcular subtotal cuando cambie el producto o la cantidad
+            $("#ProductId, #Cantidad").change(function() {
+                // Esta es una versión simplificada. En una implementación real,
+                // se obtendría el precio del producto mediante una llamada AJAX
+                // y se multiplicaría por la cantidad.
+                // Por ahora, solo mostramos un mensaje de ejemplo
+                console.log("Se debería calcular el subtotal automáticamente");
+            });
+        });
+    </script>
+}

@@ -1,53 +1,140 @@
 ﻿@model IEnumerable<Aplicacion_pedidos.Models.OrderModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Pedidos";
 }
 
-<h1>Index</h1>
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="mb-0"><i class="bi bi-cart3 me-2"></i>Gestión de Pedidos</h2>
+        <p class="text-muted">Administre los pedidos de los clientes</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-2"></i>Crear Nuevo Pedido
+        </a>
+    </div>
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Cliente)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FechaPedido)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Estado)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Total)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Cliente.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FechaPedido)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Estado)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Total)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+<div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+        <h5 class="mb-0">Listado de Pedidos</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">
+                            @Html.DisplayNameFor(model => model.Cliente)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.FechaPedido)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Estado)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Total)
+                        </th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model) {
+                    <tr>
+                        <td class="ps-3">
+                            <div class="d-flex align-items-center">
+                                <div class="order-circle me-2">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                                <span class="fw-medium">@Html.DisplayFor(modelItem => item.Cliente.Nombre)</span>
+                                <small class="text-muted ms-2">(@Html.DisplayFor(modelItem => item.Cliente.Email))</small>
+                            </div>
+                        </td>
+                        <td>
+                            <i class="bi bi-calendar-date me-1 text-muted"></i>
+                            @Html.DisplayFor(modelItem => item.FechaPedido)
+                        </td>
+                        <td>
+                            @switch (item.Estado)
+                            {
+                                case OrderStatus.Pendiente:
+                                    <span class="badge bg-warning text-dark">Pendiente</span>
+                                    break;
+                                case OrderStatus.EnProceso:
+                                    <span class="badge bg-info text-dark">En Proceso</span>
+                                    break;
+                                case OrderStatus.Enviado:
+                                    <span class="badge bg-primary">Enviado</span>
+                                    break;
+                                case OrderStatus.Entregado:
+                                    <span class="badge bg-success">Entregado</span>
+                                    break;
+                                case OrderStatus.Cancelado:
+                                    <span class="badge bg-danger">Cancelado</span>
+                                    break;
+                            }
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark fs-6">
+                                <i class="bi bi-currency-dollar me-1"></i>
+                                @Html.DisplayFor(modelItem => item.Total)
+                            </span>
+                        </td>
+                        <td>
+                            <div class="text-center">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">
+                                    <i class="bi bi-pencil"></i> Editar
+                                </a>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info btn-sm">
+                                    <i class="bi bi-info-circle"></i> Detalles
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash"></i> Eliminar
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        @if(!Model.Any())
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-cart-x" style="font-size: 3rem; color: #ccc;"></i>
+                <p class="text-muted mt-3">No hay pedidos registrados.</p>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .order-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+    }
+
+    .table-hover tr:hover {
+        background-color: rgba(0, 0, 0, 0.03);
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Add subtle animation when hovering over table rows
+            $("table tbody tr").hover(
+                function() { $(this).addClass("table-hover-effect"); },
+                function() { $(this).removeClass("table-hover-effect"); }
+            );
+        });
+    </script>
 }
-    </tbody>
-</table>

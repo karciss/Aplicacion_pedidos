@@ -1,42 +1,172 @@
 ﻿@model Aplicacion_pedidos.Models.OrderModel
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalles del Pedido";
 }
 
-<h1>Details</h1>
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="mb-0"><i class="bi bi-info-circle me-2"></i>Detalles del Pedido</h2>
+        <p class="text-muted">Información completa del pedido #@Model.Id</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <div class="btn-group" role="group">
+            <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-outline-warning">
+                <i class="bi bi-pencil me-1"></i> Editar
+            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Volver al Listado
+            </a>
+        </div>
+    </div>
+</div>
 
-<div>
-    <h4>OrderModel</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Cliente)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Cliente.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FechaPedido)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FechaPedido)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Estado)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Estado)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Total)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Total)
-        </dd>
-    </dl>
+<div class="row">
+    <!-- Información del pedido -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0"><i class="bi bi-receipt me-2"></i>Información del Pedido</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between border-bottom pb-2">
+                        <span class="text-muted">Estado:</span>
+                        @switch (Model.Estado)
+                        {
+                            case OrderStatus.Pendiente:
+                                <span class="badge bg-warning text-dark">Pendiente</span>
+                                break;
+                            case OrderStatus.EnProceso:
+                                <span class="badge bg-info text-dark">En Proceso</span>
+                                break;
+                            case OrderStatus.Enviado:
+                                <span class="badge bg-primary">Enviado</span>
+                                break;
+                            case OrderStatus.Entregado:
+                                <span class="badge bg-success">Entregado</span>
+                                break;
+                            case OrderStatus.Cancelado:
+                                <span class="badge bg-danger">Cancelado</span>
+                                break;
+                        }
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between border-bottom pb-2">
+                        <span class="text-muted">Fecha de Pedido:</span>
+                        <span><i class="bi bi-calendar-date me-1"></i> @Html.DisplayFor(model => model.FechaPedido)</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between border-bottom pb-2">
+                        <span class="text-muted">Total:</span>
+                        <span class="badge bg-light text-dark fs-6">
+                            <i class="bi bi-currency-dollar me-1"></i>
+                            @Html.DisplayFor(model => model.Total)
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Información del cliente -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0"><i class="bi bi-person me-2"></i>Información del Cliente</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="client-avatar me-3">
+                        <i class="bi bi-person-circle"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-1">@Html.DisplayFor(model => model.Cliente.Nombre)</h5>
+                        <p class="mb-0 text-muted"><i class="bi bi-envelope me-1"></i> @Html.DisplayFor(model => model.Cliente.Email)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+
+<!-- Elementos del pedido -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-list-ul me-2"></i>Elementos del Pedido</h5>
+            <a asp-controller="OrderItem" asp-action="Create" asp-route-orderId="@Model.Id" class="btn btn-sm btn-primary">
+                <i class="bi bi-plus-circle me-1"></i> Añadir Producto
+            </a>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        @if (Model.Items != null && Model.Items.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Subtotal</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="product-circle me-2">
+                                            <i class="bi bi-box"></i>
+                                        </div>
+                                        <span>@item.Producto.Nombre</span>
+                                    </div>
+                                </td>
+                                <td>@item.Cantidad</td>
+                                <td>@item.Subtotal.ToString("C")</td>
+                                <td class="text-center">
+                                    <a asp-controller="OrderItem" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a asp-controller="OrderItem" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-4">
+                <i class="bi bi-cart-x" style="font-size: 2rem; color: #ccc;"></i>
+                <p class="text-muted mt-2">No hay elementos en este pedido.</p>
+            </div>
+        }
+    </div>
 </div>
+
+<style>
+    .client-avatar {
+        font-size: 2rem;
+        color: #6c757d;
+    }
+
+    .product-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+    }
+</style>

@@ -1,0 +1,148 @@
+﻿@model Aplicacion_pedidos.Models.OrderItemModel
+
+@{
+    ViewData["Title"] = "Detalles del Elemento";
+}
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="mb-0"><i class="bi bi-info-circle me-2"></i>Detalles del Elemento</h2>
+        <p class="text-muted">Información detallada del elemento de pedido #@Model.Id</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <div class="btn-group" role="group">
+            <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-outline-warning">
+                <i class="bi bi-pencil me-1"></i> Editar
+            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Volver al Listado
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+        <h5 class="mb-0">Elemento del Pedido #@Model.OrderId</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0"><i class="bi bi-receipt me-2"></i>Información del Pedido</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between border-bottom pb-2">
+                                <span class="text-muted">Número de Pedido:</span>
+                                <a asp-controller="Orders" asp-action="Details" asp-route-id="@Model.OrderId" class="text-decoration-none">
+                                    #@Model.OrderId
+                                </a>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between border-bottom pb-2">
+                                <span class="text-muted">Fecha del Pedido:</span>
+                                <span>@Model.Order.FechaPedido.ToString("dd/MM/yyyy HH:mm")</span>
+                            </div>
+                        </div>
+                        <div class="mb-0">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Estado del Pedido:</span>
+                                @switch (Model.Order.Estado)
+                                {
+                                    case OrderStatus.Pendiente:
+                                        <span class="badge bg-warning text-dark">Pendiente</span>
+                                        break;
+                                    case OrderStatus.EnProceso:
+                                        <span class="badge bg-info text-dark">En Proceso</span>
+                                        break;
+                                    case OrderStatus.Enviado:
+                                        <span class="badge bg-primary">Enviado</span>
+                                        break;
+                                    case OrderStatus.Entregado:
+                                        <span class="badge bg-success">Entregado</span>
+                                        break;
+                                    case OrderStatus.Cancelado:
+                                        <span class="badge bg-danger">Cancelado</span>
+                                        break;
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0"><i class="bi bi-box2 me-2"></i>Información del Producto</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="product-icon me-3">
+                                <i class="bi bi-box2-heart"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">@Model.Producto.Nombre</h5>
+                                @if (!string.IsNullOrEmpty(Model.Producto.Categoria))
+                                {
+                                    <span class="badge bg-secondary">@Model.Producto.Categoria</span>
+                                }
+                            </div>
+                        </div>
+                        
+                        @if (!string.IsNullOrEmpty(Model.Producto.Descripcion))
+                        {
+                            <p class="text-muted small mb-3">@Model.Producto.Descripcion</p>
+                        }
+                        
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between border-bottom pb-2">
+                                <span class="text-muted">Precio Unitario:</span>
+                                <span>@Model.Producto.Precio.ToString("C")</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header bg-light">
+                <h6 class="mb-0"><i class="bi bi-cart-check me-2"></i>Detalles del Elemento</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between border-bottom pb-2">
+                                <span class="text-muted">Cantidad:</span>
+                                <span class="badge bg-secondary">@Model.Cantidad unidades</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between border-bottom pb-2">
+                                <span class="text-muted">Subtotal:</span>
+                                <span class="badge bg-light text-dark fs-6">
+                                    <i class="bi bi-currency-dollar me-1"></i>
+                                    @Model.Subtotal.ToString("C")
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .product-icon {
+        font-size: 2rem;
+        color: #6c757d;
+    }
+</style>
