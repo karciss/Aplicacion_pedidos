@@ -12,6 +12,7 @@ namespace Aplicacion_pedidos.Data
         public DbSet<UserModel> Users { get; set; }
         public DbSet<ProductModel> Products { get; set; }
         public DbSet<OrderModel> Orders { get; set; }
+        public DbSet<OrderItemModel> OrderItems { get; set; }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -71,6 +72,31 @@ namespace Aplicacion_pedidos.Data
                 entity.HasOne(e => e.Cliente)
                       .WithMany()
                       .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+            
+            // Configure the OrderItemModel entity
+            modelBuilder.Entity<OrderItemModel>(entity =>
+            {
+                // Table name
+                entity.ToTable("OrderItems");
+                
+                // Primary key
+                entity.HasKey(e => e.Id);
+                
+                // Properties
+                entity.Property(e => e.Cantidad).IsRequired();
+                entity.Property(e => e.Subtotal).IsRequired().HasColumnType("decimal(10, 2)");
+                
+                // Relationships
+                entity.HasOne(e => e.Order)
+                      .WithMany(o => o.Items)
+                      .HasForeignKey(e => e.OrderId)
+                      .OnDelete(DeleteBehavior.Cascade);
+                      
+                entity.HasOne(e => e.Producto)
+                      .WithMany()
+                      .HasForeignKey(e => e.ProductId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
         }

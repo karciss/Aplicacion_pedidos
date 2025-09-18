@@ -12,7 +12,7 @@ namespace Aplicacion_pedidos.Models
 
         [Required]
         [Display(Name = "Cliente")]
-        public string UserId { get; set; }
+        public int UserId { get; set; }
 
         [ForeignKey("UserId")]
         public UserModel Cliente { get; set; }
@@ -32,6 +32,9 @@ namespace Aplicacion_pedidos.Models
         [Column(TypeName = "decimal(10, 2)")]
         [DisplayFormat(DataFormatString = "{0:C}", ApplyFormatInEditMode = false)]
         public decimal Total { get; set; }
+        
+        // Relación con los items del pedido
+        public virtual ICollection<OrderItemModel> Items { get; set; }
     }
 
     public enum OrderStatus
