@@ -29,62 +29,52 @@
         <h5 class="mb-0">Información del Pedido</h5>
     </div>
     <div class="card-body">
-        <form asp-action="Create" id="createOrderForm">
-            <div asp-validation-summary="All" class="text-danger mb-3 p-3 bg-light rounded"></div>
-            
+        <form asp-action="CreateSimple" method="post" id="orderForm">
             <div class="row mb-3">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
-                        <label asp-for="UserId" class="form-label">Cliente <span class="text-danger">*</span></label>
+                        <label class="form-label">Cliente <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-person"></i></span>
-                            <select asp-for="UserId" class="form-select" asp-items="ViewBag.UserId">
+                            <select name="userId" class="form-select" required id="userId">
                                 <option value="">-- Seleccionar Cliente --</option>
+                                @foreach (SelectListItem item in ViewBag.UserId)
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
                             </select>
                         </div>
-                        <span asp-validation-for="UserId" class="text-danger"></span>
-                        <small class="text-muted">Debe seleccionar un cliente para el pedido</small>
+                        <small class="text-muted">Seleccione un cliente para el pedido</small>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
-                        <label asp-for="FechaPedido" class="form-label">Fecha del Pedido <span class="text-danger">*</span></label>
+                        <label class="form-label">Fecha <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-calendar-date"></i></span>
-                            <input asp-for="FechaPedido" class="form-control" type="datetime-local" />
+                            <input type="datetime-local" name="fechaPedido" class="form-control" 
+                                value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" required />
                         </div>
-                        <span asp-validation-for="FechaPedido" class="text-danger"></span>
                     </div>
                 </div>
-            </div>
-            
-            <div class="row mb-3">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
-                        <label asp-for="Estado" class="form-label">Estado <span class="text-danger">*</span></label>
+                        <label class="form-label">Estado <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-tag"></i></span>
-                            <select asp-for="Estado" class="form-select" asp-items="Html.GetEnumSelectList<OrderStatus>()"></select>
+                            <select name="estado" class="form-select" required>
+                                @foreach (var estado in Enum.GetValues(typeof(OrderStatus)))
+                                {
+                                    <option value="@estado" selected="@(estado.ToString() == OrderStatus.Pendiente.ToString())">@estado</option>
+                                }
+                            </select>
                         </div>
-                        <span asp-validation-for="Estado" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="Total" class="form-label">Total</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                            <input asp-for="Total" class="form-control" value="0" readonly />
-                        </div>
-                        <span asp-validation-for="Total" class="text-danger"></span>
-                        <small class="text-muted">El total se actualizará al agregar productos al pedido</small>
                     </div>
                 </div>
             </div>
-            
-            <div class="border-top pt-3">
+            <div class="border-top pt-3 text-end">
                 <button type="submit" class="btn btn-primary" id="submitButton">
-                    <i class="bi bi-check-circle me-1"></i> Crear Pedido
+                    <i class="bi bi-plus-circle me-1"></i> Crear Pedido
                 </button>
                 <a asp-action="Index" class="btn btn-outline-secondary ms-1">
                     <i class="bi bi-x-circle me-1"></i> Cancelar
@@ -103,35 +93,34 @@
     
     <script>
         $(document).ready(function() {
-            // Validación adicional en el cliente
-            $("#createOrderForm").submit(function(e) {
+            // Validación básica en el cliente
+            $("#orderForm").submit(function(e) {
                 let isValid = true;
-                const userId = $("#UserId").val();
+                const userId = $("#userId").val();
                 
                 // Validar que se haya seleccionado un cliente
                 if (!userId || userId === "") {
                     isValid = false;
-                    // Si ya existe un mensaje de error, no agregar otro
-                    if ($("span[data-valmsg-for='UserId']").text() === "") {
-                        $("span[data-valmsg-for='UserId']").text("Debe seleccionar un cliente");
-                    }
-                    $("#UserId").addClass("input-validation-error");
+                    $("#userId").addClass("is-invalid");
+                    alert("Debe seleccionar un cliente para crear el pedido.");
                 }
                 
                 if (!isValid) {
                     e.preventDefault();
-                    
-                    // Mostrar un mensaje general
-                    if ($(".validation-summary-errors").length === 0) {
-                        $(".card-body").prepend('<div class="validation-summary-errors text-danger mb-3 p-3 bg-light rounded"><ul><li>Por favor, corrija los errores y vuelva a intentarlo.</li></ul></div>');
-                    }
+                    return false;
                 }
-            });
-            
-            // Prevenir doble envío del formulario
-            $("#createOrderForm").submit(function() {
+                
+                // Prevenir doble envío del formulario
                 $("#submitButton").prop("disabled", true);
                 $("#submitButton").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creando...');
+                return true;
+            });
+            
+            // Limpiar error al cambiar la selección
+            $("#userId").change(function() {
+                if ($(this).val() !== "") {
+                    $(this).removeClass("is-invalid");
+                }
             });
         });
     </script>

@@ -145,6 +145,136 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
+/* Header Buttons - Especially for Edit pages */
+.btn-group .btn {
+  border-radius: 0;
+  border-right: none;
+}
+
+.btn-group .btn:first-child {
+  border-top-left-radius: 25px;
+  border-bottom-left-radius: 25px;
+}
+
+.btn-group .btn:last-child {
+  border-top-right-radius: 25px;
+  border-bottom-right-radius: 25px;
+  border-right: 1px solid;
+}
+
+.header-btn {
+  min-width: 140px;
+  text-align: center;
+  font-weight: 500;
+  padding: 8px 16px;
+}
+
+/* Fix for edit buttons */
+.edit-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 25px !important;
+  min-width: 120px !important;
+  padding: 8px 16px !important;
+  margin: 5px !important;
+  text-align: center !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;
+  background-color: #fff !important;
+}
+
+.edit-button i {
+  margin-right: 8px !important;
+}
+
+.edit-button.edit-primary {
+  color: #d87093 !important;
+  border: 1px solid #d87093 !important;
+}
+
+.edit-button.edit-primary:hover {
+  background-color: #d87093 !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 8px rgba(216, 112, 147, 0.3) !important;
+}
+
+.edit-button.edit-secondary {
+  color: #6d6875 !important;
+  border: 1px solid #6d6875 !important;
+}
+
+.edit-button.edit-secondary:hover {
+  background-color: #6d6875 !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 8px rgba(109, 104, 117, 0.3) !important;
+}
+
+.edit-button.edit-danger {
+  color: #ef5350 !important;
+  border: 1px solid #ef5350 !important;
+}
+
+.edit-button.edit-danger:hover {
+  background-color: #ef5350 !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 8px rgba(239, 83, 80, 0.3) !important;
+}
+
+/* Action buttons for tables */
+.action-buttons {
+  display: inline-flex;
+  border-radius: 25px;
+  overflow: hidden;
+  border: 1px solid #e9ecef;
+}
+
+.action-button {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background-color: white;
+  transition: all 0.3s ease;
+}
+
+.action-button:hover {
+  transform: translateY(-2px);
+}
+
+.info-button {
+  color: #29b6f6;
+  border-right: 1px solid #e9ecef;
+}
+
+.info-button:hover {
+  background-color: rgba(41, 182, 246, 0.1);
+  color: #0288d1;
+}
+
+.warning-button {
+  color: #ffa726;
+  border-right: 1px solid #e9ecef;
+}
+
+.warning-button:hover {
+  background-color: rgba(255, 167, 38, 0.1);
+  color: #f57c00;
+}
+
+.danger-button {
+  color: #ef5350;
+}
+
+.danger-button:hover {
+  background-color: rgba(239, 83, 80, 0.1);
+  color: #e53935;
+}
+
 .btn-primary {
   background-color: #d87093;
   border-color: #d87093;

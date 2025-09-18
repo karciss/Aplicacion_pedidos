@@ -11,7 +11,7 @@
     </div>
     <div class="col-md-6 text-end">
         <a asp-action="Create" class="btn btn-primary">
-            <i class="bi bi-plus-circle me-1"></i> Nuevo Pedido
+            <i class="bi bi-plus-circle me-2"></i>Nuevo Pedido
         </a>
     </div>
 </div>
@@ -31,57 +31,6 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
-
-<!-- Filtros de búsqueda -->
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-white py-3">
-        <h5 class="mb-0"><i class="bi bi-funnel me-2"></i>Filtros de Búsqueda</h5>
-    </div>
-    <div class="card-body">
-        <form id="searchForm" method="get" asp-action="Index" class="row">
-            <div class="col-md-3 mb-3">
-                <label for="clienteFilter" class="form-label">Cliente</label>
-                <select id="clienteFilter" name="clienteId" class="form-select">
-                    <option value="">Todos los clientes</option>
-                    @foreach (var cliente in ViewBag.Clientes ?? new SelectList(new List<SelectListItem>()))
-                    {
-                        <option value="@cliente.Value" selected="@(ViewBag.ClienteSeleccionado != null && ViewBag.ClienteSeleccionado.ToString() == cliente.Value)">
-                            @cliente.Text
-                        </option>
-                    }
-                </select>
-            </div>
-            <div class="col-md-3 mb-3">
-                <label for="estadoFilter" class="form-label">Estado</label>
-                <select id="estadoFilter" name="estado" class="form-select">
-                    <option value="">Todos los estados</option>
-                    @foreach (var estado in Enum.GetValues(typeof(OrderStatus)))
-                    {
-                        <option value="@estado" selected="@(ViewBag.EstadoSeleccionado != null && ViewBag.EstadoSeleccionado.ToString() == estado.ToString())">
-                            @estado
-                        </option>
-                    }
-                </select>
-            </div>
-            <div class="col-md-3 mb-3">
-                <label for="fechaDesde" class="form-label">Fecha Desde</label>
-                <input type="date" id="fechaDesde" name="fechaDesde" class="form-control" value="@ViewBag.FechaDesde" />
-            </div>
-            <div class="col-md-3 mb-3">
-                <label for="fechaHasta" class="form-label">Fecha Hasta</label>
-                <input type="date" id="fechaHasta" name="fechaHasta" class="form-control" value="@ViewBag.FechaHasta" />
-            </div>
-            <div class="col-12 d-flex justify-content-end">
-                <button type="submit" class="btn btn-primary me-2">
-                    <i class="bi bi-search me-1"></i> Buscar
-                </button>
-                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
-                    <i class="bi bi-x-circle me-1"></i> Limpiar Filtros
-                </a>
-            </div>
-        </form>
-    </div>
-</div>
 
 <!-- Lista de pedidos -->
 <div class="card shadow-sm">
@@ -141,15 +90,15 @@
                                     }
                                 </td>
                                 <td>@item.Total.ToString("C")</td>
-                                <td class="text-center">
-                                    <div class="btn-group" role="group">
-                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm" title="Detalles">
+                                <td>
+                                    <div class="text-center">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info btn-sm">
                                             <i class="bi bi-info-circle"></i>
                                         </a>
-                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm" title="Editar">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm" title="Eliminar">
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">
                                             <i class="bi bi-trash"></i>
                                         </a>
                                     </div>
@@ -165,7 +114,7 @@
             <div class="text-center py-5">
                 <i class="bi bi-cart-x" style="font-size: 3rem; color: #ccc;"></i>
                 <h5 class="mt-3 text-muted">No se encontraron pedidos</h5>
-                <p class="text-muted">Intente con otros filtros o cree un nuevo pedido</p>
+                <p class="text-muted">No hay pedidos registrados en el sistema</p>
                 <a asp-action="Create" class="btn btn-primary mt-2">
                     <i class="bi bi-plus-circle me-1"></i> Crear Pedido
                 </a>
@@ -174,16 +123,19 @@
     </div>
 </div>
 
-<style>
-    .avatar-circle {
-        width: 32px;
-        height: 32px;
-        background-color: #e9ecef;
-        border-radius: 50%;
-        color: #6c757d;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-    }
-</style>
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Add subtle animation when hovering over table rows
+            $("table tbody tr").hover(
+                function() { $(this).addClass("table-hover-effect"); },
+                function() { $(this).removeClass("table-hover-effect"); }
+            );
+            
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function() {
+                $(".alert").alert('close');
+            }, 5000);
+        });
+    </script>
+}
