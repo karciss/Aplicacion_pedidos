@@ -127,7 +127,13 @@ namespace Aplicacion_pedidos.Controllers
                 return NotFound();
             }
 
-            var orderModel = await _context.Orders.FindAsync(id);
+            // Cargar el pedido con sus elementos y productos relacionados
+            var orderModel = await _context.Orders
+                .Include(o => o.Cliente)
+                .Include(o => o.Items)
+                    .ThenInclude(i => i.Producto)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
             if (orderModel == null)
             {
                 return NotFound();
@@ -149,8 +155,10 @@ namespace Aplicacion_pedidos.Controllers
 
             _logger.LogInformation("Iniciando edición de pedido ID={OrderId}, Total recibido={Total}", id, orderModel.Total);
 
-            // Recuperar el pedido original para mantener el total
+            // Recuperar el pedido original para mantener el total y los elementos
             var originalOrder = await _context.Orders
+                .Include(o => o.Items)
+                    .ThenInclude(i => i.Producto)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(o => o.Id == id);
 
@@ -158,6 +166,7 @@ namespace Aplicacion_pedidos.Controllers
             {
                 // Usar el total del pedido original
                 orderModel.Total = originalOrder.Total;
+                orderModel.Items = originalOrder.Items;
                 _logger.LogInformation("Usando total original: {Total}", orderModel.Total);
             }
 
@@ -191,7 +200,16 @@ namespace Aplicacion_pedidos.Controllers
                 TempData["ErrorMessage"] = $"Error al actualizar el pedido: {ex.Message}";
             }
             
+            // Si llegamos aquí, algo falló. Recargamos las relaciones y volvemos a la vista
             ViewData["UserId"] = new SelectList(_context.Users, "Id", "Nombre", orderModel.UserId);
+            
+            // Asegurarse de cargar los elementos del pedido para mostrarlos en la vista
+            orderModel = await _context.Orders
+                .Include(o => o.Cliente)
+                .Include(o => o.Items)
+                    .ThenInclude(i => i.Producto)
+                .FirstOrDefaultAsync(m => m.Id == id);
+                
             return View(orderModel);
         }
 
@@ -213,8 +231,11 @@ namespace Aplicacion_pedidos.Controllers
                     return RedirectToAction(nameof(Edit), new { id });
                 }
                 
-                // Obtener el pedido original
-                var orderModel = await _context.Orders.FindAsync(id);
+                // Obtener el pedido original con todos sus elementos
+                var orderModel = await _context.Orders
+                    .Include(o => o.Items)
+                    .FirstOrDefaultAsync(o => o.Id == id);
+                    
                 if (orderModel == null)
                 {
                     return NotFound();
@@ -224,7 +245,7 @@ namespace Aplicacion_pedidos.Controllers
                 orderModel.UserId = userId;
                 orderModel.FechaPedido = fechaPedido;
                 orderModel.Estado = estado;
-                // No tocar el Total
+                // No tocar el Total ni los Items
                 
                 _context.Update(orderModel);
                 await _context.SaveChangesAsync();

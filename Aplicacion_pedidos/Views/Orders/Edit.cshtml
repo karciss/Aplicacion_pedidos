@@ -29,7 +29,15 @@
     </div>
 }
 
-<div class="card shadow-sm">
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card shadow-sm mb-4">
     <div class="card-header bg-white py-3">
         <h5 class="mb-0">Información del Pedido</h5>
     </div>
@@ -90,7 +98,7 @@
                         <label class="form-label">Total</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                            <input class="form-control" type="number" step="0.01" min="0" value="@Model.Total.ToString("0.00")" readonly />
+                            <input id="totalDisplay" class="form-control bg-light" type="text" value="@Model.Total.ToString("C")" readonly />
                         </div>
                         <small class="text-muted">El total se calcula automáticamente en base a los elementos del pedido</small>
                     </div>
@@ -111,6 +119,118 @@
     </div>
 </div>
 
+<!-- Elementos del pedido -->
+<div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-list-ul me-2"></i>Elementos del Pedido</h5>
+            <a asp-controller="OrderItem" asp-action="Create" asp-route-orderId="@Model.Id" class="btn btn-sm btn-primary">
+                <i class="bi bi-plus-circle me-1"></i> Añadir Producto
+            </a>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        @if (Model.Items != null && Model.Items.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="orderItemsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Subtotal</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr data-subtotal="@item.Subtotal">
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="product-circle me-2">
+                                            <i class="bi bi-box"></i>
+                                        </div>
+                                        <span>@(item.Producto != null ? item.Producto.Nombre : "Producto no disponible")</span>
+                                    </div>
+                                </td>
+                                <td>@item.Cantidad</td>
+                                <td class="item-subtotal">@item.Subtotal.ToString("C")</td>
+                                <td class="text-center">
+                                    <a asp-controller="OrderItem" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a asp-controller="OrderItem" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm delete-item-btn">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-4">
+                <i class="bi bi-cart-x" style="font-size: 2rem; color: #ccc;"></i>
+                <p class="text-muted mt-2">No hay elementos en este pedido.</p>
+                <a asp-controller="OrderItem" asp-action="Create" asp-route-orderId="@Model.Id" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i> Añadir el primer producto
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .product-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+    }
+</style>
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function() {
+            // Calcular el total de los elementos del pedido
+            function calcularTotal() {
+                let total = 0;
+                
+                // Iterar sobre cada fila de la tabla y sumar los subtotales
+                $("#orderItemsTable tbody tr").each(function() {
+                    // Obtener el valor del atributo data-subtotal
+                    const subtotal = parseFloat($(this).attr("data-subtotal")) || 0;
+                    total += subtotal;
+                });
+                
+                // Formatear el total como moneda
+                const formatter = new Intl.NumberFormat('es-ES', {
+                    style: 'currency',
+                    currency: 'EUR'
+                });
+                
+                // Actualizar el campo de total
+                $("#totalDisplay").val(formatter.format(total));
+            }
+            
+            // Calcular el total al cargar la página
+            calcularTotal();
+            
+            // Manejar el evento de clic en el botón de eliminar
+            $(".delete-item-btn").on("click", function(e) {
+                // Confirmar la eliminación
+                if (!confirm("¿Está seguro de que desea eliminar este elemento?")) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
 }
