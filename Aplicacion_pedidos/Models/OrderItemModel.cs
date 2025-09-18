@@ -17,8 +17,10 @@ namespace Aplicacion_pedidos.Models
 
         [Required(ErrorMessage = "El producto es obligatorio")]
         [Display(Name = "Producto")]
+        
         public int ProductId { get; set; }
 
+        //Clave Foranea, hace referencia a producto
         [ForeignKey("ProductId")]
         public ProductModel Producto { get; set; }
 

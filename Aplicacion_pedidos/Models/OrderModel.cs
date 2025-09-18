@@ -15,7 +15,7 @@ namespace Aplicacion_pedidos.Models
         [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar un cliente válido")]
         public int UserId { get; set; }
 
-        //Clave foranea, hace referencia a cliente (user)
+        //Clave Foranea, hace referencia a cliente (user)
         [ForeignKey("UserId")]
         public UserModel Cliente { get; set; }
 
