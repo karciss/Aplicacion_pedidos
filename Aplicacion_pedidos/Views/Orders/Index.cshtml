@@ -6,135 +6,184 @@
 
 <div class="row mb-4">
     <div class="col-md-6">
-        <h2 class="mb-0"><i class="bi bi-cart3 me-2"></i>Gestión de Pedidos</h2>
-        <p class="text-muted">Administre los pedidos de los clientes</p>
+        <h2 class="mb-0"><i class="bi bi-cart3 me-2"></i>Lista de Pedidos</h2>
+        <p class="text-muted">Administre todos los pedidos registrados en el sistema</p>
     </div>
     <div class="col-md-6 text-end">
         <a asp-action="Create" class="btn btn-primary">
-            <i class="bi bi-plus-circle me-2"></i>Crear Nuevo Pedido
+            <i class="bi bi-plus-circle me-1"></i> Nuevo Pedido
         </a>
     </div>
 </div>
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Filtros de búsqueda -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white py-3">
+        <h5 class="mb-0"><i class="bi bi-funnel me-2"></i>Filtros de Búsqueda</h5>
+    </div>
+    <div class="card-body">
+        <form id="searchForm" method="get" asp-action="Index" class="row">
+            <div class="col-md-3 mb-3">
+                <label for="clienteFilter" class="form-label">Cliente</label>
+                <select id="clienteFilter" name="clienteId" class="form-select">
+                    <option value="">Todos los clientes</option>
+                    @foreach (var cliente in ViewBag.Clientes ?? new SelectList(new List<SelectListItem>()))
+                    {
+                        <option value="@cliente.Value" selected="@(ViewBag.ClienteSeleccionado != null && ViewBag.ClienteSeleccionado.ToString() == cliente.Value)">
+                            @cliente.Text
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="estadoFilter" class="form-label">Estado</label>
+                <select id="estadoFilter" name="estado" class="form-select">
+                    <option value="">Todos los estados</option>
+                    @foreach (var estado in Enum.GetValues(typeof(OrderStatus)))
+                    {
+                        <option value="@estado" selected="@(ViewBag.EstadoSeleccionado != null && ViewBag.EstadoSeleccionado.ToString() == estado.ToString())">
+                            @estado
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="fechaDesde" class="form-label">Fecha Desde</label>
+                <input type="date" id="fechaDesde" name="fechaDesde" class="form-control" value="@ViewBag.FechaDesde" />
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="fechaHasta" class="form-label">Fecha Hasta</label>
+                <input type="date" id="fechaHasta" name="fechaHasta" class="form-control" value="@ViewBag.FechaHasta" />
+            </div>
+            <div class="col-12 d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-search me-1"></i> Buscar
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle me-1"></i> Limpiar Filtros
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Lista de pedidos -->
 <div class="card shadow-sm">
     <div class="card-header bg-white py-3">
-        <h5 class="mb-0">Listado de Pedidos</h5>
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-list me-2"></i>Pedidos</h5>
+            <span class="badge bg-primary">@Model.Count() pedidos</span>
+        </div>
     </div>
     <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th class="ps-3">
-                            @Html.DisplayNameFor(model => model.Cliente)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.FechaPedido)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.Estado)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.Total)
-                        </th>
-                        <th class="text-center">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                @foreach (var item in Model) {
-                    <tr>
-                        <td class="ps-3">
-                            <div class="d-flex align-items-center">
-                                <div class="order-circle me-2">
-                                    <i class="bi bi-person"></i>
-                                </div>
-                                <span class="fw-medium">@Html.DisplayFor(modelItem => item.Cliente.Nombre)</span>
-                                <small class="text-muted ms-2">(@Html.DisplayFor(modelItem => item.Cliente.Email))</small>
-                            </div>
-                        </td>
-                        <td>
-                            <i class="bi bi-calendar-date me-1 text-muted"></i>
-                            @Html.DisplayFor(modelItem => item.FechaPedido)
-                        </td>
-                        <td>
-                            @switch (item.Estado)
-                            {
-                                case OrderStatus.Pendiente:
-                                    <span class="badge bg-warning text-dark">Pendiente</span>
-                                    break;
-                                case OrderStatus.EnProceso:
-                                    <span class="badge bg-info text-dark">En Proceso</span>
-                                    break;
-                                case OrderStatus.Enviado:
-                                    <span class="badge bg-primary">Enviado</span>
-                                    break;
-                                case OrderStatus.Entregado:
-                                    <span class="badge bg-success">Entregado</span>
-                                    break;
-                                case OrderStatus.Cancelado:
-                                    <span class="badge bg-danger">Cancelado</span>
-                                    break;
-                            }
-                        </td>
-                        <td>
-                            <span class="badge bg-light text-dark fs-6">
-                                <i class="bi bi-currency-dollar me-1"></i>
-                                @Html.DisplayFor(modelItem => item.Total)
-                            </span>
-                        </td>
-                        <td>
-                            <div class="text-center">
-                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">
-                                    <i class="bi bi-pencil"></i> Editar
-                                </a>
-                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info btn-sm">
-                                    <i class="bi bi-info-circle"></i> Detalles
-                                </a>
-                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">
-                                    <i class="bi bi-trash"></i> Eliminar
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-        </div>
-        @if(!Model.Any())
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Cliente</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th>Total</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Id</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle me-2">
+                                            <span>@item.Cliente.Nombre.Substring(0, 1).ToUpper()</span>
+                                        </div>
+                                        @item.Cliente.Nombre
+                                    </div>
+                                </td>
+                                <td>@item.FechaPedido.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    @switch (item.Estado)
+                                    {
+                                        case OrderStatus.Pendiente:
+                                            <span class="badge bg-warning text-dark">Pendiente</span>
+                                            break;
+                                        case OrderStatus.EnProceso:
+                                            <span class="badge bg-info text-dark">En Proceso</span>
+                                            break;
+                                        case OrderStatus.Enviado:
+                                            <span class="badge bg-primary">Enviado</span>
+                                            break;
+                                        case OrderStatus.Entregado:
+                                            <span class="badge bg-success">Entregado</span>
+                                            break;
+                                        case OrderStatus.Cancelado:
+                                            <span class="badge bg-danger">Cancelado</span>
+                                            break;
+                                    }
+                                </td>
+                                <td>@item.Total.ToString("C")</td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm" title="Detalles">
+                                            <i class="bi bi-info-circle"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm" title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
         {
             <div class="text-center py-5">
                 <i class="bi bi-cart-x" style="font-size: 3rem; color: #ccc;"></i>
-                <p class="text-muted mt-3">No hay pedidos registrados.</p>
+                <h5 class="mt-3 text-muted">No se encontraron pedidos</h5>
+                <p class="text-muted">Intente con otros filtros o cree un nuevo pedido</p>
+                <a asp-action="Create" class="btn btn-primary mt-2">
+                    <i class="bi bi-plus-circle me-1"></i> Crear Pedido
+                </a>
             </div>
         }
     </div>
 </div>
 
 <style>
-    .order-circle {
+    .avatar-circle {
         width: 32px;
         height: 32px;
-        border-radius: 50%;
         background-color: #e9ecef;
+        border-radius: 50%;
+        color: #6c757d;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #6c757d;
-    }
-
-    .table-hover tr:hover {
-        background-color: rgba(0, 0, 0, 0.03);
+        font-weight: 600;
     }
 </style>
-
-@section Scripts {
-    <script>
-        $(document).ready(function() {
-            // Add subtle animation when hovering over table rows
-            $("table tbody tr").hover(
-                function() { $(this).addClass("table-hover-effect"); },
-                function() { $(this).removeClass("table-hover-effect"); }
-            );
-        });
-    </script>
-}

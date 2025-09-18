@@ -1,49 +1,230 @@
 ﻿@model Aplicacion_pedidos.Models.OrderItemModel
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Editar Elemento";
+    int cantidadOriginal = ViewData["CantidadOriginal"] != null ? (int)ViewData["CantidadOriginal"] : Model.Cantidad;
 }
 
-<h1>Edit</h1>
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="mb-0"><i class="bi bi-pencil me-2"></i>Editar Elemento de Pedido</h2>
+        <p class="text-muted">Modifique la información del elemento #@Model.Id</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Volver al Listado
+        </a>
+    </div>
+</div>
 
-<h4>OrderItemModel</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
+<div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+        <h5 class="mb-0">Información del Elemento</h5>
+    </div>
+    <div class="card-body">
         <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3 p-3 bg-light rounded"></div>
             <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="OrderId" class="control-label"></label>
-                <select asp-for="OrderId" class="form-control" asp-items="ViewBag.OrderId"></select>
-                <span asp-validation-for="OrderId" class="text-danger"></span>
+            <input type="hidden" name="cantidadOriginal" value="@cantidadOriginal" />
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="OrderId" class="form-label">Pedido</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-receipt"></i></span>
+                            <select asp-for="OrderId" class="form-select" asp-items="ViewBag.OrderId" disabled>
+                                <option value="">-- Seleccionar Pedido --</option>
+                            </select>
+                            <input type="hidden" asp-for="OrderId" />
+                        </div>
+                        <span asp-validation-for="OrderId" class="text-danger"></span>
+                        <small class="text-muted">El pedido no puede ser modificado</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="ProductId" class="form-label">Producto</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-box2"></i></span>
+                            <select asp-for="ProductId" class="form-select" asp-items="ViewBag.ProductId" id="productSelect">
+                                <option value="">-- Seleccionar Producto --</option>
+                            </select>
+                        </div>
+                        <span asp-validation-for="ProductId" class="text-danger"></span>
+                        <small class="text-muted">Solo se muestran productos disponibles con stock</small>
+                        <div id="stockInfo" class="mt-2"></div>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="ProductId" class="control-label"></label>
-                <select asp-for="ProductId" class="form-control" asp-items="ViewBag.ProductId"></select>
-                <span asp-validation-for="ProductId" class="text-danger"></span>
+            
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Cantidad" class="form-label">Cantidad</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-123"></i></span>
+                            <input asp-for="Cantidad" class="form-control" min="1" type="number" id="cantidadInput" />
+                        </div>
+                        <span asp-validation-for="Cantidad" class="text-danger"></span>
+                        <small class="text-muted">Cantidad original: <span class="badge bg-secondary">@cantidadOriginal unidades</span></small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Subtotal" class="form-label">Subtotal</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                            <input asp-for="Subtotal" class="form-control" step="0.01" type="number" id="subtotalInput" readonly />
+                        </div>
+                        <span asp-validation-for="Subtotal" class="text-danger"></span>
+                        <small class="text-muted">El subtotal se calcula automáticamente</small>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Cantidad" class="control-label"></label>
-                <input asp-for="Cantidad" class="form-control" />
-                <span asp-validation-for="Cantidad" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Subtotal" class="control-label"></label>
-                <input asp-for="Subtotal" class="form-control" />
-                <span asp-validation-for="Subtotal" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+            
+            <div class="border-top pt-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle me-1"></i> Guardar Cambios
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary ms-1">
+                    <i class="bi bi-x-circle me-1"></i> Cancelar
+                </a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Variable global para almacenar la información de los productos
+        let productos = {};
+        let cantidadOriginal = @cantidadOriginal;
+        let productoOriginalId = @Model.ProductId;
+        
+        $(document).ready(function() {
+            // Cargar información de productos disponibles
+            $.ajax({
+                url: '/Products/GetAvailableProductsJson',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    // Almacenar los datos de productos
+                    productos = {};
+                    data.forEach(function(item) {
+                        productos[item.id] = {
+                            precio: item.precio,
+                            stock: item.stock
+                        };
+                    });
+                    
+                    // Obtener información del producto actual (por si no está en la lista anterior)
+                    $.ajax({
+                        url: '/Products/GetAvailableProductsJson?id=' + productoOriginalId,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(producto) {
+                            if (producto && producto.length > 0) {
+                                productos[productoOriginalId] = {
+                                    precio: producto[0].precio,
+                                    stock: producto[0].stock + cantidadOriginal // Sumamos la cantidad original porque está en uso
+                                };
+                            }
+                            
+                            // Inicializar la información del producto seleccionado
+                            actualizarInfoProducto();
+                        }
+                    });
+                },
+                error: function() {
+                    console.error("Error al cargar la información de productos");
+                }
+            });
+            
+            // Evento al cambiar el producto seleccionado
+            $("#productSelect").change(function() {
+                actualizarInfoProducto();
+            });
+            
+            // Evento al cambiar la cantidad
+            $("#cantidadInput").on('input', function() {
+                calcularSubtotal();
+            });
+            
+            // Función para mostrar información del producto y validar stock
+            function actualizarInfoProducto() {
+                const productId = $("#productSelect").val();
+                const stockInfo = $("#stockInfo");
+                
+                if (productId && productos[productId]) {
+                    const producto = productos[productId];
+                    
+                    // Calcular stock disponible
+                    let stockDisponible = producto.stock;
+                    
+                    // Si es el mismo producto, sumamos la cantidad original porque ya la tenemos en uso
+                    if (parseInt(productId) === productoOriginalId) {
+                        stockDisponible += cantidadOriginal;
+                    }
+                    
+                    stockInfo.html(`
+                        <div class="alert alert-info p-2 mb-0">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Precio: $${producto.precio.toFixed(2)} | 
+                            Stock disponible: <span class="badge bg-primary">${stockDisponible} unidades</span>
+                        </div>
+                    `);
+                    
+                    // Actualizar max del input de cantidad
+                    $("#cantidadInput").attr("max", stockDisponible);
+                    
+                    // Calcular subtotal inicial
+                    calcularSubtotal();
+                } else {
+                    stockInfo.empty();
+                    $("#subtotalInput").val('');
+                }
+            }
+            
+            // Función para calcular el subtotal
+            function calcularSubtotal() {
+                const productId = $("#productSelect").val();
+                const cantidad = parseInt($("#cantidadInput").val()) || 0;
+                
+                if (productId && productos[productId] && cantidad > 0) {
+                    const precio = productos[productId].precio;
+                    let stockDisponible = productos[productId].stock;
+                    
+                    // Si es el mismo producto, sumamos la cantidad original
+                    if (parseInt(productId) === productoOriginalId) {
+                        stockDisponible += cantidadOriginal;
+                    }
+                    
+                    // Validar que la cantidad no exceda el stock
+                    if (cantidad > stockDisponible) {
+                        // Mostrar advertencia
+                        $("#stockInfo").html(`
+                            <div class="alert alert-danger p-2 mb-0">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                La cantidad excede el stock disponible (${stockDisponible} unidades)
+                            </div>
+                        `);
+                        
+                        // No calcular subtotal si excede el stock
+                        $("#subtotalInput").val('');
+                    } else {
+                        // Mostrar información normal
+                        actualizarInfoProducto();
+                        
+                        // Calcular subtotal
+                        const subtotal = precio * cantidad;
+                        $("#subtotalInput").val(subtotal.toFixed(2));
+                    }
+                } else {
+                    $("#subtotalInput").val('');
+                }
+            }
+        });
+    </script>
 }

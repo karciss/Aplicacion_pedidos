@@ -16,12 +16,17 @@
     </div>
 </div>
 
+<div class="alert alert-info">
+    <i class="bi bi-info-circle-fill me-2"></i>
+    <strong>Nota:</strong> Solo los productos disponibles y con stock suficiente aparecen en la lista.
+</div>
+
 <div class="card shadow-sm">
     <div class="card-header bg-white py-3">
         <h5 class="mb-0">Información del Elemento</h5>
     </div>
     <div class="card-body">
-        <form asp-action="Create">
+        <form asp-action="Create" id="orderItemForm">
             <div asp-validation-summary="ModelOnly" class="text-danger mb-3 p-3 bg-light rounded"></div>
             
             <div class="row mb-3">
@@ -43,7 +48,7 @@
                         <label asp-for="ProductId" class="form-label">Producto</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-box2"></i></span>
-                            <select asp-for="ProductId" class="form-select" asp-items="ViewBag.ProductId">
+                            <select asp-for="ProductId" class="form-select" asp-items="ViewBag.ProductId" id="productSelect">
                                 <option value="">-- Seleccionar Producto --</option>
                             </select>
                         </div>
@@ -59,10 +64,11 @@
                         <label asp-for="Cantidad" class="form-label">Cantidad</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-123"></i></span>
-                            <input asp-for="Cantidad" class="form-control" min="1" type="number" />
+                            <input asp-for="Cantidad" class="form-control" min="1" type="number" id="cantidadInput" />
                         </div>
                         <span asp-validation-for="Cantidad" class="text-danger"></span>
                         <small class="text-muted">Indique la cantidad de unidades del producto</small>
+                        <div id="stockInfo" class="mt-1"></div>
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -70,16 +76,16 @@
                         <label asp-for="Subtotal" class="form-label">Subtotal</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                            <input asp-for="Subtotal" class="form-control" step="0.01" type="number" />
+                            <input asp-for="Subtotal" class="form-control" step="0.01" type="number" id="subtotalInput" readonly />
                         </div>
                         <span asp-validation-for="Subtotal" class="text-danger"></span>
-                        <small class="text-muted">El subtotal debe ser el precio unitario multiplicado por la cantidad</small>
+                        <small class="text-muted">El subtotal se calcula automáticamente</small>
                     </div>
                 </div>
             </div>
             
             <div class="border-top pt-3">
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary" id="submitBtn">
                     <i class="bi bi-check-circle me-1"></i> Crear Elemento
                 </button>
                 <a asp-action="Index" class="btn btn-outline-secondary ms-1">
@@ -93,15 +99,106 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
+        // Diccionario para almacenar información de productos
+        const productos = {};
+        
         $(document).ready(function() {
-            // Función para calcular subtotal cuando cambie el producto o la cantidad
-            $("#ProductId, #Cantidad").change(function() {
-                // Esta es una versión simplificada. En una implementación real,
-                // se obtendría el precio del producto mediante una llamada AJAX
-                // y se multiplicaría por la cantidad.
-                // Por ahora, solo mostramos un mensaje de ejemplo
-                console.log("Se debería calcular el subtotal automáticamente");
+            // Obtener información sobre los productos disponibles
+            $("#productSelect option").each(function() {
+                const id = $(this).val();
+                if (id) {
+                    // Este es un enfoque simplificado. En un escenario real, obtendrías esta información del servidor
+                    // via una llamada AJAX cuando se selecciona un producto
+                    productos[id] = {
+                        nombre: $(this).text(),
+                        // Estos valores serían obtenidos del servidor
+                        precio: 0,
+                        stock: 0
+                    };
+                }
+            });
+            
+            // Manejar cambio en el producto seleccionado
+            $("#productSelect").change(function() {
+                const productoId = $(this).val();
+                actualizarInfoProducto(productoId);
+            });
+            
+            // Manejar cambio en la cantidad
+            $("#cantidadInput").on('input', function() {
+                calcularSubtotal();
+                validarStock();
             });
         });
+        
+        function actualizarInfoProducto(productoId) {
+            // Aquí podrías hacer una llamada AJAX para obtener información del producto
+            // Por simplicidad, solo mostramos un mensaje genérico
+            if (productoId) {
+                $.ajax({
+                    url: '/Products/GetProductInfo',
+                    type: 'GET',
+                    data: { id: productoId },
+                    success: function(data) {
+                        // Actualizar la información del producto en nuestro diccionario local
+                        if (data) {
+                            productos[productoId].precio = data.precio;
+                            productos[productoId].stock = data.stock;
+                            
+                            // Mostrar información del stock
+                            mostrarInfoStock(data.stock);
+                            
+                            // Recalcular subtotal
+                            calcularSubtotal();
+                        }
+                    },
+                    error: function() {
+                        // Mostrar mensaje genérico en caso de error
+                        $("#stockInfo").html('<span class="text-muted">Seleccione un producto para ver disponibilidad</span>');
+                    }
+                });
+            } else {
+                $("#stockInfo").html('');
+            }
+        }
+        
+        function mostrarInfoStock(stock) {
+            if (stock > 10) {
+                $("#stockInfo").html('<span class="text-success"><i class="bi bi-check-circle"></i> Stock disponible: ' + stock + ' unidades</span>');
+            } else if (stock > 0) {
+                $("#stockInfo").html('<span class="text-warning"><i class="bi bi-exclamation-triangle"></i> Stock limitado: ' + stock + ' unidades</span>');
+            } else {
+                $("#stockInfo").html('<span class="text-danger"><i class="bi bi-x-circle"></i> Sin stock disponible</span>');
+            }
+        }
+        
+        function calcularSubtotal() {
+            const productoId = $("#productSelect").val();
+            const cantidad = parseInt($("#cantidadInput").val()) || 0;
+            
+            if (productoId && cantidad > 0 && productos[productoId]) {
+                const precio = productos[productoId].precio || 0;
+                const subtotal = precio * cantidad;
+                $("#subtotalInput").val(subtotal.toFixed(2));
+            } else {
+                $("#subtotalInput").val('');
+            }
+        }
+        
+        function validarStock() {
+            const productoId = $("#productSelect").val();
+            const cantidad = parseInt($("#cantidadInput").val()) || 0;
+            
+            if (productoId && cantidad > 0 && productos[productoId]) {
+                const stock = productos[productoId].stock || 0;
+                
+                if (cantidad > stock) {
+                    $("#stockInfo").html('<span class="text-danger"><i class="bi bi-x-circle"></i> Cantidad excede el stock disponible (' + stock + ' unidades)</span>');
+                    $("#submitBtn").prop('disabled', true);
+                } else {
+                    $("#submitBtn").prop('disabled', false);
+                }
+            }
+        }
     </script>
 }

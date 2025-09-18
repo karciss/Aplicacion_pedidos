@@ -69,6 +69,26 @@ namespace Aplicacion_pedidos.Controllers
             return View(await productos.ToListAsync());
         }
 
+        // GET: Products/GetProductInfo
+        [HttpGet]
+        public async Task<IActionResult> GetProductInfo(int id)
+        {
+            var producto = await _context.Products.FindAsync(id);
+            if (producto == null)
+            {
+                return NotFound();
+            }
+
+            // Devolver solo la información necesaria para evitar exponer datos sensibles
+            return Json(new { 
+                id = producto.Id,
+                nombre = producto.Nombre, 
+                precio = producto.Precio,
+                stock = producto.Stock,
+                disponible = producto.Disponible
+            });
+        }
+
         // GET: Products/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -223,6 +243,24 @@ namespace Aplicacion_pedidos.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Products/GetAvailableProductsJson
+        [HttpGet]
+        public async Task<IActionResult> GetAvailableProductsJson()
+        {
+            var productos = await _context.Products
+                .Where(p => p.Disponible && p.Stock > 0)
+                .Select(p => new {
+                    id = p.Id,
+                    nombre = p.Nombre,
+                    precio = p.Precio,
+                    stock = p.Stock,
+                    categoria = p.Categoria
+                })
+                .ToListAsync();
+
+            return Json(productos);
         }
 
         private bool ProductModelExists(int id)

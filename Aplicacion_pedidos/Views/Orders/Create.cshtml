@@ -16,18 +16,26 @@
     </div>
 </div>
 
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <div class="card shadow-sm">
     <div class="card-header bg-white py-3">
         <h5 class="mb-0">Información del Pedido</h5>
     </div>
     <div class="card-body">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3 p-3 bg-light rounded"></div>
+        <form asp-action="Create" id="createOrderForm">
+            <div asp-validation-summary="All" class="text-danger mb-3 p-3 bg-light rounded"></div>
             
             <div class="row mb-3">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label asp-for="UserId" class="form-label">Cliente</label>
+                        <label asp-for="UserId" class="form-label">Cliente <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-person"></i></span>
                             <select asp-for="UserId" class="form-select" asp-items="ViewBag.UserId">
@@ -35,14 +43,15 @@
                             </select>
                         </div>
                         <span asp-validation-for="UserId" class="text-danger"></span>
+                        <small class="text-muted">Debe seleccionar un cliente para el pedido</small>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label asp-for="FechaPedido" class="form-label">Fecha del Pedido</label>
+                        <label asp-for="FechaPedido" class="form-label">Fecha del Pedido <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-calendar-date"></i></span>
-                            <input asp-for="FechaPedido" class="form-control" />
+                            <input asp-for="FechaPedido" class="form-control" type="datetime-local" />
                         </div>
                         <span asp-validation-for="FechaPedido" class="text-danger"></span>
                     </div>
@@ -52,11 +61,10 @@
             <div class="row mb-3">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label asp-for="Estado" class="form-label">Estado</label>
+                        <label asp-for="Estado" class="form-label">Estado <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-tag"></i></span>
-                            <select asp-for="Estado" class="form-select" asp-items="Html.GetEnumSelectList<OrderStatus>()">
-                            </select>
+                            <select asp-for="Estado" class="form-select" asp-items="Html.GetEnumSelectList<OrderStatus>()"></select>
                         </div>
                         <span asp-validation-for="Estado" class="text-danger"></span>
                     </div>
@@ -66,15 +74,16 @@
                         <label asp-for="Total" class="form-label">Total</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
-                            <input asp-for="Total" class="form-control" step="0.01" type="number" />
+                            <input asp-for="Total" class="form-control" value="0" readonly />
                         </div>
                         <span asp-validation-for="Total" class="text-danger"></span>
+                        <small class="text-muted">El total se actualizará al agregar productos al pedido</small>
                     </div>
                 </div>
             </div>
             
             <div class="border-top pt-3">
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary" id="submitButton">
                     <i class="bi bi-check-circle me-1"></i> Crear Pedido
                 </button>
                 <a asp-action="Index" class="btn btn-outline-secondary ms-1">
@@ -85,6 +94,45 @@
     </div>
 </div>
 
+<div class="alert alert-info mt-4">
+    <i class="bi bi-info-circle-fill me-2"></i> Después de crear el pedido, podrá agregarle productos.
+</div>
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            // Validación adicional en el cliente
+            $("#createOrderForm").submit(function(e) {
+                let isValid = true;
+                const userId = $("#UserId").val();
+                
+                // Validar que se haya seleccionado un cliente
+                if (!userId || userId === "") {
+                    isValid = false;
+                    // Si ya existe un mensaje de error, no agregar otro
+                    if ($("span[data-valmsg-for='UserId']").text() === "") {
+                        $("span[data-valmsg-for='UserId']").text("Debe seleccionar un cliente");
+                    }
+                    $("#UserId").addClass("input-validation-error");
+                }
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    
+                    // Mostrar un mensaje general
+                    if ($(".validation-summary-errors").length === 0) {
+                        $(".card-body").prepend('<div class="validation-summary-errors text-danger mb-3 p-3 bg-light rounded"><ul><li>Por favor, corrija los errores y vuelva a intentarlo.</li></ul></div>');
+                    }
+                }
+            });
+            
+            // Prevenir doble envío del formulario
+            $("#createOrderForm").submit(function() {
+                $("#submitButton").prop("disabled", true);
+                $("#submitButton").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creando...');
+            });
+        });
+    </script>
 }

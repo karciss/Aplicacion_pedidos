@@ -36,11 +36,12 @@ namespace Aplicacion_pedidos.Models
 
         [Display(Name = "Disponible")]
         public bool Disponible { get; set; } = true;
-
+        
         // Método auxiliar para verificar si hay stock disponible
         public bool HayStockDisponible(int cantidad)
         {
-            return Stock >= cantidad && Disponible;
+            // Verificar que el producto esté disponible y que tenga suficiente stock
+            return Disponible && Stock >= cantidad;
         }
     }
 }
