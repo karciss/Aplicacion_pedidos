@@ -15,7 +15,7 @@ namespace Aplicacion_pedidos.Models
         public string Nombre { get; set; }
 
         [Display(Name = "Descripción")]
-        [StringLength(500, ErrorMessage = "La descripción no puede exceder los {1} caracteres")]
+        [StringLength(300, ErrorMessage = "La descripción no puede exceder los {1} caracteres")]
         public string Descripcion { get; set; }
 
         [Required(ErrorMessage = "El precio es obligatorio")]
@@ -26,7 +26,7 @@ namespace Aplicacion_pedidos.Models
         public decimal Precio { get; set; }
 
         [Required(ErrorMessage = "El stock es obligatorio")]
-        [Range(0, 10000, ErrorMessage = "El stock no puede ser negativo y no debe superar {2} unidades")]
+        [Range(0, 1000, ErrorMessage = "El stock no puede ser negativo y no debe superar {2} unidades")]
         [Display(Name = "Stock")]
         public int Stock { get; set; }
 
@@ -37,10 +37,9 @@ namespace Aplicacion_pedidos.Models
         [Display(Name = "Disponible")]
         public bool Disponible { get; set; } = true;
         
-        // Método auxiliar para verificar si hay stock disponible
+        
         public bool HayStockDisponible(int cantidad)
         {
-            // Verificar que el producto esté disponible y que tenga suficiente stock
             return Disponible && Stock >= cantidad;
         }
     }

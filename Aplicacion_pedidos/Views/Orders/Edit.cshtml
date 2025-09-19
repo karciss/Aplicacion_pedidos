@@ -206,7 +206,7 @@
                 
                 // Iterar sobre cada fila de la tabla y sumar los subtotales
                 $("#orderItemsTable tbody tr").each(function() {
-                    // Obtener el valor del atributo data-subtotal
+                    
                     const subtotal = parseFloat($(this).attr("data-subtotal")) || 0;
                     total += subtotal;
                 });
@@ -226,7 +226,6 @@
             
             // Manejar el evento de clic en el botón de eliminar
             $(".delete-item-btn").on("click", function(e) {
-                // Confirmar la eliminación
                 if (!confirm("¿Está seguro de que desea eliminar este elemento?")) {
                     e.preventDefault();
                 }

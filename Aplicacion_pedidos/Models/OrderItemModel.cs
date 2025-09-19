@@ -26,7 +26,7 @@ namespace Aplicacion_pedidos.Models
 
         [Required(ErrorMessage = "La cantidad es obligatoria")]
         [Display(Name = "Cantidad")]
-        [Range(1, 1000, ErrorMessage = "La cantidad debe estar entre {1} y {2}")]
+        [Range(1, 100, ErrorMessage = "La cantidad debe estar entre {1} y {2}")]
         public int Cantidad { get; set; }
 
         [Display(Name = "Subtotal")]

@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Aplicacion_pedidos.Controllers
 {
-    [Authorize]  // Require authentication for all actions
+    [Authorize]  
     public class UsersController : Controller
     {
         private readonly PedidosDBContext _context;
@@ -23,7 +23,7 @@ namespace Aplicacion_pedidos.Controllers
         }
 
         // GET: Users
-        [AuthorizeRoles(UserModel.ROLE_ADMIN)]  // Only admins can see user list
+        [AuthorizeRoles(UserModel.ROLE_ADMIN)]  
         public async Task<IActionResult> Index()
         {
             return View(await _context.Users.ToListAsync());
