@@ -13,7 +13,7 @@ using System.Globalization;
 
 namespace Aplicacion_pedidos.Controllers
 {
-    [Authorize]
+    [Authorize] //Acceso authorizado
     public class OrdersController : Controller
     {
         private readonly PedidosDBContext _context;

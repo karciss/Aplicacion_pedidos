@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Aplicacion_pedidos.Controllers
 {
-    [Authorize]  
+    [Authorize]  //Acceso authorizado
     public class ProductsController : Controller
     {
         private readonly PedidosDBContext _context;
