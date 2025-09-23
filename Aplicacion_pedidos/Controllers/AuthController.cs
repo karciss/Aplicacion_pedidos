@@ -40,7 +40,7 @@ namespace Aplicacion_pedidos.Controllers
                 var user = await _context.Users
                     .FirstOrDefaultAsync(u => u.Email.ToLower() == model.Email.ToLower());
 
-                if (user != null && user.Password == model.Password) // In production, use password hashing!
+                if (user != null && user.Password == model.Password) 
                 {
                     // Create claims for the authenticated user
                     var claims = new List<Claim>
@@ -56,7 +56,7 @@ namespace Aplicacion_pedidos.Controllers
                     var authProperties = new AuthenticationProperties
                     {
                         IsPersistent = model.RememberMe,
-                        ExpiresUtc = DateTimeOffset.UtcNow.AddHours(3) // Session expires after 3 hours
+                        ExpiresUtc = DateTimeOffset.UtcNow.AddHours(3) 
                     };
 
                     await HttpContext.SignInAsync(
