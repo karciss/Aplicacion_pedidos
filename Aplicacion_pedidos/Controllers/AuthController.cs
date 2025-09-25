@@ -42,7 +42,6 @@ namespace Aplicacion_pedidos.Controllers
 
                 if (user != null && user.Password == model.Password) 
                 {
-                    // Create claims for the authenticated user
                     var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Name, user.Nombre),
@@ -64,7 +63,6 @@ namespace Aplicacion_pedidos.Controllers
                         new ClaimsPrincipal(claimsIdentity),
                         authProperties);
 
-                    // Redirect to returnUrl or default page
                     return RedirectToLocal(returnUrl);
                 }
 
